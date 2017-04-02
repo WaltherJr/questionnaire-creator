@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Ranked choice demo</title>
+	<link rel="stylesheet" type="text/css" href="../css/qunit-2.1.1.css">
+	<link rel="stylesheet" type="text/css" href="ranked-choice.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+	<style type="text/css">
+		body {
+			width: 60%;
+			margin: 0 auto;
+			overflow-x: hidden;
+		}
+
+		.ranked-choice {
+			outline: 1px solid green;
+		}
+	</style>
+
+	<script src="../js/qunit-2.1.1.js"></script>
+	<script src="../js/jquery-3.1.1.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<script src="ranked-choice.js"></script>
+
+	<script type="text/javascript">
+		function compute_alternatives_distance_string(alternative_a, alternative_b) {
+			var alternatives_distance = ranked_choice_get_alternative_position(alternative_b) - ranked_choice_get_alternative_position(alternative_a);
+
+			console.log(alternatives_distance);
+
+			if (alternatives_distance === 0) {
+				return ', ';
+			} else if (alternatives_distance === 1) {
+				return ' är något bättre än ';
+			} else if (alternatives_distance === 2) {
+				return ' är bättre än ';
+			} else if (alternatives_distance === 3) {
+				return ' är markant bättre än ';
+			} else if (alternatives_distance === 4) {
+				return ' är mycket bättre än ';
+			} else if (alternatives_distance === 5) {
+				return ' är väldigt mycket bättre än ';
+			} else if (alternatives_distance === 6) {
+				return ' är extremt mycket bättre än ';
+			} else if (alternatives_distance >= 7) {
+				var plus_string = '+';
+
+				for (i = 0; i < alternatives_distance - 7; i++) {
+					plus_string += '+';
+				}
+
+				return ' är extremt mycket bättre än (' + plus_string + ') ';
+			}
+		}
+
+		function update_choice_type_b_ranking_description(ranked_choice_alternatives) {
+			ranked_choice_alternatives.sort(function(alternative_a, alternative_b) {
+				return ranked_choice_get_alternative_position(alternative_b) - ranked_choice_get_alternative_position(alternative_a);
+			});
+
+			var str = '';
+			var accumulated_absolute_distance = 0;
+
+			for (j = 0; j < ranked_choice_alternatives.length; j++) {
+				accumulated_absolute_distance += Math.abs(ranked_choice_get_alternative_position(ranked_choice_alternatives[j]));
+			}
+
+			for (i = 1; i < ranked_choice_alternatives.length; i++) {
+				str += (ranked_choice_get_alternative_text(ranked_choice_alternatives[i-1]) +
+						compute_alternatives_distance_string(ranked_choice_alternatives[i], ranked_choice_alternatives[i-1]) +
+						ranked_choice_get_alternative_text(ranked_choice_alternatives[i]));
+			}
+
+			if (accumulated_absolute_distance === 0) {
+				str += ' är lika bra';
+			}
+
+			$('.ranked-choice-type-b-order-description').text(str);
+		}
+
+		$(document).ready(function() {
+			$('.add-ranked-choice-type-a').click(function() {
+				ranked_choice_add_alternative($('.choice-type-a'), 8);
+			});
+
+			$('.add-ranked-choice-type-b').click(function() {
+				ranked_choice_add_alternative($('.choice-type-b'), 1);
+			})
+
+			var ranked_choice_slider_steps = 15;
+			var ranked_choice_type_a = ranked_choice_create_new(ranked_choice_slider_steps).addClass('choice-type-a');
+			var ranked_choice_type_b = ranked_choice_create_new(ranked_choice_slider_steps).addClass('choice-type-b');
+			var ranked_choice_type_c = ranked_choice_create_new(11).addClass('choice-type-c');
+
+			var ranked_choice_type_a_slider_bar_update_function_callback = function(ranked_choice_slider_bar, ranked_choice_alternatives_list) {
+				var ranges = {left: 8, right: 8};
+
+				ranked_choice_alternatives_list.children('li').each(function(index, alternative) {
+					var alternative_position = ranked_choice_get_alternative_position(alternative);
+
+					if (alternative_position < ranges.left) {
+						ranges.left = alternative_position;
+					}
+
+					if (alternative_position > ranges.right) {
+						ranges.right = alternative_position;
+					}
+				});
+
+				$(ranked_choice_slider_bar).css({'padding-left': Math.round((ranges.left-1)/14*100) + '%',
+												'padding-right': Math.round((15-ranges.right)/14*100) + '%'});
+			};
+
+			var ranked_choice_type_b_slider_bar_update_function_callback = function(ranked_choice_slider_bar, ranked_choice_alternatives_list) {
+				var ranges = {left: 1, right: 1};
+
+				ranked_choice_alternatives_list.children('li').each(function(index, alternative) {
+					var alternative_position = ranked_choice_get_alternative_position(alternative);
+
+					if (alternative_position > ranges.right) {
+						ranges.right = alternative_position;
+					}
+				});
+
+				$(ranked_choice_slider_bar).css({'padding-left': '0%',
+												'padding-right': Math.round((15-ranges.right)/14*100) + '%'});
+
+				update_choice_type_b_ranking_description(ranked_choice_get_alternatives(ranked_choice_alternatives_list));
+			};
+
+			var ranked_choice_type_c_slider_bar_update_function_callback = function(ranked_choice_slider_bar, ranked_choice_alternatives_list) {
+				var arrow_alternative_position = ranked_choice_get_alternative_position(ranked_choice_alternatives_list.children('li:first-child'));
+				var padding_left = Math.min(5, arrow_alternative_position-1)*10;
+				var padding_right = Math.min(5, 11-arrow_alternative_position)*10;
+
+				$(ranked_choice_slider_bar).css({'padding-left': padding_left + '%',
+												'padding-right': padding_right + '%'});
+
+			}
+
+			ranked_choice_set_slider_bar_update_function_callback(ranked_choice_type_a, ranked_choice_type_a_slider_bar_update_function_callback);
+			ranked_choice_set_slider_bar_update_function_callback(ranked_choice_type_b, ranked_choice_type_b_slider_bar_update_function_callback);
+			ranked_choice_set_slider_bar_update_function_callback(ranked_choice_type_c, ranked_choice_type_c_slider_bar_update_function_callback);
+
+			$('.scale-list-choice-type-a').after(ranked_choice_type_a);
+			$('hr:first-of-type').after(ranked_choice_type_b);
+			$('.scale-list-choice-type-c').after(ranked_choice_type_c);
+
+			ranked_choice_add_alternative(ranked_choice_type_c, 6, {
+				text: '&harr;',
+				removable: false,
+				editable: false});
+		});
+	</script>
+</head>
+<body>
+	<ul class="ranked-choice-scale-list scale-list-choice-type-a">
+		<li><span contenteditable="true" spellcheck="false">Dåligt</span></li>
+		<li><span contenteditable="true" spellcheck="false">Varken eller</span></li>
+		<li><span contenteditable="true" spellcheck="false">Bra</span></li>
+	</ul>
+
+	<p class="ranked-choice-order-description">Alternativ 1 <span style="font-weight: bold">är lika bra</span></p>
+	<button class="btn btn-primary add-ranked-choice-type-a" type="button">Lägg till alternativ</button>
+
+	<hr>
+
+	<p class="ranked-choice-type-b-order-description"></p>
+	<button class="btn btn-primary add-ranked-choice-type-b" type="button">Lägg till alternativ</button>
+
+	<hr>
+
+	<ul class="ranked-choice-scale-list scale-list-choice-type-c">
+		<li><span contenteditable="true" spellcheck="false">Alternativ A</span></li>
+		<li><span contenteditable="true" spellcheck="false">Lika viktiga</span></li>
+		<li><span contenteditable="true" spellcheck="false">Alternativ B</span></li>
+	</ul>
+
+	<p class="ranked-choice-order-description">Alternativ A <span style="font-weight: bold">är lika viktigt som</span> Alternativ B</p>
+</div>
+</body>
+</html>

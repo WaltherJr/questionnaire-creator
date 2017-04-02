@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Select list demo</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="../css/qunit-2.1.1.css">
+		<link rel="stylesheet" type="text/css" href="select-list.css">
+
+		<style type="text/css">
+			.select-list {
+				margin: 10px;
+			}
+		</style>
+
+		<script src="../js/jquery-3.1.1.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		<script src="../js/qunit-2.1.1.js"></script>
+		<script src="select-list.js"></script>
+
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$('#select-list-toggle-event-listeners').click(function() {
+					if ($(this).text() == 'Event listeners installed') {
+						$(this).text('Event listeners uninstalled');
+
+						$('.select-list').each(function(index, select_list) {
+							select_list_uninstall_event_listeners($(select_list));
+						});
+					} else {
+						$(this).text('Event listeners installed');
+
+						$('.select-list').each(function(index, select_list) {
+							select_list_install_event_listeners($(select_list));
+						});
+					}
+				});
+
+				var places = ['Antuna/Älvsunda',
+		 					'Brunnby-Vik',
+		 					'Carlslund/Brunnby Park',
+		 					'Dragonvägen',
+		 					'Eds Glesbygd',
+		 					'Ekebo',
+		 					'Ekeby/Sköldnora',
+		 					'Folkparksområdet',
+		 					'Fresta glesbygd',
+		 					'Frestaby',
+		 					'Glädjen/Skälbys arbetsområde',
+		 					'Grimstaby',
+		 					'Hasselbacken',
+		 					'Hasselgatan',
+		 					'Holmen',
+		 					'Infra City',
+		 					'Johannesdal',
+		 					'Kavallerigatan/Vilundaparken',
+		 					'Länk-/Klock-/Kedje-/Bygelvägen',
+		 					'Lindhemsvägen',
+		 					'Messingen/Optimus',
+		 					'Njursta',
+		 					'Norra Bollstanäs',
+		 					'Norra Nordanvägen',
+		 					'Norra Vik',
+		 					'Odenslunda',
+		 					'Prästgårdsmarken',
+		 					'Södra Prästgårdsmarken',
+		 					'Runby',
+		 					'Runby Backar/Lövsta',
+		 					'Sanda Ängar',
+		 					'Sigma/Apoteksskogen',
+		 					'Sjukyrkoberget',
+		 					'Skälby',
+		 					'Smedby 2',
+		 					'Smedby 3',
+		 					'Smedby arbetsområde',
+		 					'Södra Bollstanäs',
+		 					'Stallgatan',
+		 					'Stora Wäsby gård',
+		 					'Väsby villastad/Tegelbruket',
+		 					'Vatthagen',
+		 					'Vilunda/Korpkulla'];
+
+				var list1 = select_list_create_new(true, false, 'Välj', 'Lägg till');
+				var list2 = select_list_create_new(true, true, '- Select -', 'Lägg till alternativ');
+
+				$('.btn-toggle-editable-mode').click(function() {
+					$('.select-list').each(function(index, select_list) {
+						select_list_toggle_editable_mode($(select_list));
+					});
+				});
+
+				for (i = 0; i < places.length; i++) {
+					//select_list_add_alternative(list1, places[i]);
+					select_list_add_alternative(list2, places[i]);
+					$('#select').append('<option>' + places[i] + '</option>');
+				}
+
+				$('body').prepend(list1);
+				$('body').prepend(list2);
+			});
+		</script>
+	</head>
+
+	<body>
+		<hr>
+		<button class="btn btn-primary btn-toggle-editable-mode" type="button">Toggle editable mode</button>
+		<hr>
+		<select id="select">
+		</select>
+		<button class="btn btn-default" id="select-list-toggle-event-listeners" type="button">Event listeners installed</button>
+	</body>
+</html>

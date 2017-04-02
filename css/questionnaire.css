@@ -1,0 +1,146 @@
+body {
+	background-color: #eee;
+	overflow-x: hidden;
+}
+
+body > div[class*='question-type'], body > .heading-and-description, body > .question {
+	height: 0;
+	margin: 0;
+	padding: 0;
+	border: none;
+	overflow: hidden;
+}
+
+#questionnaire {
+	min-height: 960px;
+	padding: 0 80px 40px 80px;
+	background-color: #fff;
+	box-shadow: 0 8px 10px #aaa;
+	overflow-y: hidden;
+}
+
+#questionnaire > header {
+	background-color: white;
+	padding-top: 40px;
+	padding-bottom: 40px;
+	margin: 0 !important;
+	position: relative;
+	z-index: 3;
+}
+
+#questionnaire > .heading-and-description > .panel-heading > .panel-title {
+	font-size: 24px;
+}
+
+.panel-heading .popover-title {
+	background-color: #ff4444;
+	color: white;
+	background: linear-gradient(to bottom, #ff4444, #e53d3d);
+}
+
+.questionnaire-title {
+	margin-top: 2em;
+}
+
+#questionnaire > * {
+	margin-bottom: 40px;
+}
+
+button.active {
+	z-index: 0 !important;
+}
+
+ul.question-answer-alternatives {
+	margin: 0; padding: 0;
+	list-style: none;
+	overflow: hidden;
+}
+
+ul.question-answer-alternatives > li {
+	position: relative;
+	background-color: white;
+}
+
+#questionnaire > footer {
+	text-align: center;
+}
+
+.btn-remove-answer-alternative {
+	font-weight: bold;
+	font-size: 1.4em;
+	cursor: pointer;
+}
+
+#questionnaire [contenteditable='true']:focus {
+	outline: none ! important;
+	box-shadow: inset 0 0 1px 1px dodgerblue !important;
+	border-radius: 2px;
+	transition: box-shadow .2s;
+}
+
+ul {
+	list-style-type: none;
+}
+
+.add-answer-alternative {
+	color: #aaa;
+}
+
+.mnu-question-type {
+	position: absolute;
+	z-index: 10000 !important;
+}
+
+/*
+.mnu-question-type > li.active > a:after {
+	content: ' ✓';
+}
+*/
+
+.panel-footer {
+	padding: 0 !important;
+}
+
+.btn-remove-answer-alternative {
+	margin-left: 10px;
+}
+
+#questionnaire > .panel {
+	position: relative;
+	top: 0;
+	opacity: 1;
+	margin-bottom: 40px;
+	max-height: 1200px;
+	overflow: visible;
+	background-color: white;
+	z-index: 2;
+	transition: top 1s;
+}
+
+.animate-top {
+	transition: top 1s;
+}
+
+.animate-remove {
+	transition: margin-bottom .7s, top .7s;
+}
+
+.animate-duplicate {
+	transition: margin-bottom .7s, top .7s;
+}
+
+.animate-max-height {
+	transition: max-height 1s;
+}
+
+.animate-opacity {
+	transition: opacity 1s;
+}
+
+.anim-remove-question-alternative {
+	transition: margin-top .5s, opacity .5s;
+}
+
+.modal-dialog {
+	width: 40%;
+}
