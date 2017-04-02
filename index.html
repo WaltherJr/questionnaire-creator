@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>XPLOR</title>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/questionnaire.css">
+	<link rel="stylesheet" type="text/css" href="ranked-choice/ranked-choice.css">
+	<link rel="stylesheet" type="text/css" href="select-list/select-list.css">
+
+	<style type="text/css">
+	.apa {
+		outline: 10px solid red !important;
+	}
+	</style>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<!-- <script src="shared/shiny.js" type="text/javascript"></script> -->
+	<script src="select-list/select-list.js" type="text/javascript"></script>
+	<script src="ranked-choice/ranked-choice.js" type="text/javascript"></script>
+	<script src="js/questionnaire.js" type="text/javascript"></script>
+</head>
+
+<body>
+<!-- NAVBAR BEGIN -->
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">xplor</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="#">Map</a></li>
+				<li><a href="#">Table</a></li>
+				<li><a href="#">Report</a></li>
+				<li><a href="#">Help</a></li>
+				<li><a href="#">Code</a></li>
+			</ul>
+		</div>
+	</nav>
+<!-- NAVBAR END -->
+
+<!-- MAIN CONTAINER BEGIN -->
+	<div class="container-fluid">
+<!-- ROW ONE BEGIN -->
+		<div class="row">
+
+<!-- TOOLBAR BEGIN -->
+			<div class="col-sm-2 text-right">
+				<div class="btn-group-vertical btn-group-lg btn-grp-questionnaire-operations">
+					<button type="button" class="btn btn-default btn-add-question" data-toggle="tooltip" data-placement="right" title="Lägg&nbsp;till&nbsp;fråga">
+						<span class="glyphicon glyphicon-question-sign"></span></button>
+					<button type="button" class="btn btn-default btn-add-heading-and-description" data-toggle="tooltip" data-placement="right" title="Lägg&nbsp;till&nbsp;rubrik&nbsp;med&nbsp;beskrivning">
+						<span class="glyphicon glyphicon-text-size"></span></button>
+					<button type="button" class="btn btn-default btn-add-image" data-toggle="tooltip" data-placement="right" title="Lägg&nbsp;till&nbsp;bild">
+						<span class="glyphicon glyphicon-picture"></span></button>
+					<button type="button" class="btn btn-default btn-add-hyperlink" data-toggle="tooltip" data-placement="right" title="Lägg&nbsp;till&nbsp;hyperlänk">
+						<span class="glyphicon glyphicon-link"></span></button>
+					<button type="button" class="btn btn-default btn-add-email-link" data-toggle="tooltip" data-placement="right" title="Lägg&nbsp;till&nbsp;email-länk">
+						<span class="glyphicon glyphicon-envelope"></span></button><div style="margin: 1em 0"></div>
+					<button type="button" class="btn btn-default btn-preview-questionnaire" data-toggle="tooltip" data-placement="right" title="Förhandsgranska&nbsp;formulär">
+						<span class="glyphicon glyphicon-eye-open"></span></button>
+					<button type="button" class="btn btn-default btn-save-questionnaire" data-toggle="tooltip" data-placement="right" title="Spara&nbsp;formulär">
+						<span class="glyphicon glyphicon-floppy-save"></span></button>
+					<button type="button" class="btn btn-default btn-load-questionnaire" data-toggle="tooltip" data-placement="right" title="Ladda&nbsp;formulär">
+						<span class="glyphicon glyphicon-folder-open"></span></button>
+					<button type="button" class="btn btn-default btn-clear-questionnaire" data-toggle="tooltip" data-placement="right" title="Rensa&nbsp;formulär">
+						<span class="glyphicon glyphicon-trash"></span></button>
+				</div>
+			</div>
+<!-- TOOLBAR END -->
+
+<!-- QUESTIONNAIRE DIV BEGIN -->
+			<div class="col-sm-8">
+				<div id="questionnaire">
+					<header>
+						<h1 class="questionnaire-title" contenteditable="true" spellcheck="false">Namnlöst formulär</h1><hr>
+						<p class="lead" contenteditable="true" spellcheck="false">Beskrivning av formulär</p>
+					</header>
+					<footer style="display: none">
+						<button id="btn-submit-questionnaire" type="button" class="btn btn-primary btn-lg btn-block">Skicka in svar</button>
+					</footer>
+				</div>
+			</div>
+<!-- QUESTIONNAIRE DIV END -->
+
+		</div>
+<!-- ROW ONE END -->
+	</div>
+<!-- MAIN CONTAINER END -->
+
+<!-- HEADING-AND-DESCRIPTION DIV BEGIN -->
+	<div class="panel panel-default heading-and-description">
+		<div class="panel-heading">
+			<h3 class="panel-title" contenteditable="true" spellcheck="false">Rubrik</h3>
+		</div>
+		<div class="panel-body">
+			<p contenteditable="true" spellcheck="false">Beskrivning</p>
+		</div>
+		<div class="panel-footer">
+			<div class="btn-group">
+				<button type="button" class="btn btn-default btn-move-section-up" title="Flytta&nbsp;upp">
+					<span class="glyphicon glyphicon-arrow-up"></span></button>
+				<button type="button" class="btn btn-default btn-move-section-down" title="Flytta&nbsp;ner">
+					<span class="glyphicon glyphicon-arrow-down"></span></button>
+				<button type="button" class="btn btn-default btn-duplicate-section" title="Duplicera">
+					<span class="glyphicon glyphicon-duplicate"></span></button>
+				<button type="button" class="btn btn-default btn-remove-section" title="Ta&nbsp;bort">
+					<span class="glyphicon glyphicon-trash"></span></button>
+			</div>
+		</div>
+	</div>
+<!-- HEADING-AND-DESCRIPTION DIV END -->
+
+<!-- QUESTION DIV BEGIN -->
+	<div class="panel panel-default question" data-current-question-type="short-answer">
+		<div class="panel-heading">
+			<h3 class="panel-title" contenteditable="true" spellcheck="false" style="display: inline">Rubrik</h3>
+			<div class="btn-group pull-right">
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Frågetyp&nbsp;<span class="caret"></span></button>
+				<ul class="dropdown-menu mnu-question-type">
+					<li data-question-type="short-answer"><a href="#"><span class="glyphicon glyphicon-text-background"></span>&nbsp;&nbsp;Kort svar</a></li>
+					<li data-question-type="paragraph"><a href="#"><span class="glyphicon glyphicon-text-background"></span>&nbsp;&nbsp;Stycke</a></li>
+					<li role="separator" class="divider"></li>
+					<li data-question-type="single-choice-list"><a href="#"><span class="glyphicon glyphicon-list-alt"></span>&nbsp;&nbsp;Enkelval: Lista</a></li>
+					<li data-question-type="multiple-choice-list"><a href="#"><span class="glyphicon glyphicon-list-alt"></span>&nbsp;&nbsp;Flerval: Lista</a></li>
+					<li role="separator" class="divider"></li>
+					<li data-question-type="single-choice-radio-buttons"><a href="#"><span class="glyphicon glyphicon-record"></span>&nbsp;&nbsp;Enkelval: Radioknappar</a></li>
+					<li data-question-type="multiple-choice-checkboxes"><a href="#"><span style="font-size: 1.4em;">&#9745;</span>&nbsp;&nbsp;Flerval: Kryssrutor</a></li>
+					<li role="separator" class="divider"></li>
+					<li data-question-type="ranked-choice"><a href="#"><span style="font-size: 1.2em">&#9878;</span>&nbsp;&nbsp;Rankat val</a></li>
+				</ul>
+			</div>
+			<div class="clearfix"></div>
+		</div>
+
+		<div class="panel-body">
+			<div class="alert alert-danger" role="alert" style="display: none">
+				<strong>Observera!</strong> Denna fråga är obligatorisk.
+			</div>
+
+			<div class="question-type-none">
+				<!-- QUESTION TYPE CONTENT HERE -->
+			</div>
+		</div>
+
+		<div class="panel-footer">
+			<div class="btn-group">
+				<button type="button" class="btn btn-default btn-move-section-up" title="Flytta&nbsp;upp"><span class="glyphicon glyphicon-arrow-up"></span></button>
+				<button type="button" class="btn btn-default btn-move-section-down" title="Flytta&nbsp;ner"><span class="glyphicon glyphicon-arrow-down"></span></button>
+				<button type="button" class="btn btn-default btn-duplicate-section" title="Duplicera"><span class="glyphicon glyphicon-duplicate"></span></button>
+				<button type="button" class="btn btn-default btn-remove-section" title="Ta&nbsp;bort"><span class="glyphicon glyphicon-trash"></span></button>
+			</div>
+			<div class="checkbox-inline">
+				<label class="lbl-mandatory-question" title="Gör denna fråga obligatorisk att svara på"><input type="checkbox" checked>Obligatorisk fråga</label>
+			</div>
+		</div>
+
+	</div>
+<!-- QUESTION DIV END -->
+
+<!-- QUESTION TYPES BEGIN -->
+	<!-- Short answer -->
+	<div class="question-type-short-answer">
+		<p class="question-description" spellcheck="false" contenteditable="true">Frågebeskrivning</p>
+		<input type="text" class="form-control question-short-answer-text" spellcheck="true" placeholder="Kort svarstext">
+	</div>
+
+	<!-- Paragraph -->
+	<div class="question-type-paragraph">
+		<p class="question-description" spellcheck="false" contenteditable="true">Frågebeskrivning</p>
+		<textarea class="form-control" spellcheck="true" placeholder="Lång svarstext" rows="3"></textarea>
+	</div>
+
+	<!-- Single choice: radio buttons -->
+	<div class="question-type-single-choice-radio-buttons">
+		<p class="question-description" spellcheck="false" contenteditable="true">Frågebeskrivning</p>
+		<ul class="question-answer-alternatives">
+			<li>
+				<input type="radio" disabled>
+				<label class="lbl-answer-alternative-text" contenteditable="true" spellcheck="false">Alternativ</label>
+				<span class="btn-remove-answer-alternative" data-toggle="tooltip" title="Ta bort alternativ">&times;</span><br>
+			</li>
+			<li class="add-answer-alternative">
+				<input type="radio" disabled>
+				<label class="lbl-add-answer-alternative">Lägg till alternativ</label>
+			</li>
+		</ul>
+	</div>
+
+	<!-- Single choice: list -->
+	<div class="question-type-single-choice-list">
+		<p class="question-description" spellcheck="false" contenteditable="true">Frågebeskrivning</p>
+	</div>
+
+	<!-- Multiple choice: checkboxes -->
+	<div class="question-type-multiple-choice-checkboxes">
+	<p class="question-description" spellcheck="false" contenteditable="true">Frågebeskrivning</p>
+	<ul class="question-answer-alternatives">
+		<li>
+			<input type="checkbox" disabled>
+			<label class="lbl-answer-alternative-text" contenteditable="true" spellcheck="false">Alternativ</label>
+			<span class="btn-remove-answer-alternative" data-toggle="tooltip" title="Ta bort alternativ">&times;</span><br>
+		</li>
+		<li class="add-answer-alternative">
+			<input type="checkbox" disabled>
+			<label class="lbl-add-answer-alternative">Lägg till alternativ</label>
+		</li>
+	</ul>
+	</div>
+
+	<!-- Multiple choice: list -->
+	<div class="question-type-multiple-choice-list">
+		<p class="question-description" spellcheck="false" contenteditable="true">Frågebeskrivning</p>
+	</div>
+
+	<!-- Ranked choice -->
+	<div class="question-type-ranked-choice">
+	<p class="question-description" spellcheck="false" contenteditable="true">Frågebeskrivning</p>
+	<p class="ranked-choice-order-description" style="display: none">Alternativ 1 <span style="font-weight: bold">är lika bra</span></p>
+
+	<label class="lbl-ranked-choice-type">Valtyp:&nbsp;&nbsp;<select class="sel-ranked-choice-type">
+		<option selected>A</option>
+		<option>B</option>
+		<option>C</option>
+	</select></label>
+	<button class="btn btn-primary btn-add-ranked-choice" type="button" style="margin-left: 5px">Lägg till alternativ</button>
+	</div>
+	<!-- QUESTION TYPES END -->
+
+	<!-- MODAL DIALOGS BEGIN -->
+	<!-- Add image modal -->
+	<div class="modal fade" id="modal-add-image" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+	<div class="modal-content">
+	<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">Lägg till bild</h4>
+	</div>
+	<div class="modal-body">
+	<form>
+	<div class="form-group">
+	<label class="lbl-image-address" for="txt-image-address">Bildadress:</label>
+	<input id="txt-image-address" type="text" class="form-control" placeholder="http://www.example.com/image.jpg">
+	</div>
+	</form>
+	</div>
+	<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
+	<button type="button" class="btn btn-primary" data-dismiss="modal">Lägg till</button>
+	</div>
+	</div>
+	</div>
+	</div>
+
+	<!-- Add hyperlink/email-link modal -->
+	<div class="modal fade" id="modal-add-link" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+	<div class="modal-content">
+	<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">Infoga länk</h4>
+	</div>
+	<div class="modal-body">
+	<form>
+	<div class="form-group">
+	<label for="txt-link-text">Länktext:</label>
+	<input id="txt-link-text" type="text" class="form-control">
+	</div>
+	<div class="form-group">
+	<label class="lbl-link-address" for="txt-link-address">Länkadress:</label>
+	<input id="txt-link-address" type="text" class="form-control" placeholder="http://www.example.com">
+	</div>
+	</form>
+	</div>
+	<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
+	<button type="button" class="btn btn-primary" data-dismiss="modal">Lägg till</button>
+	</div>
+	</div>
+	</div>
+	</div>
+
+	<!-- Clear questionnaire modal -->
+	<div class="modal fade" id="modal-clear-questionnaire" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+	<div class="modal-content">
+	<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">Bekräfta rensning av formulär</h4>
+	</div>
+	<div class="modal-body">
+	<p>Är du säker på att du vill rensa formuläret? Detta kommer att ta bort alla frågor och går inte att ångra.</p>
+	</div>
+	<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
+	<button type="button" class="btn btn-danger" data-dismiss="modal">Rensa</button>
+	</div>
+	</div>
+	</div>
+	</div>
+
+	<div class="modal fade" id="modal-questionnaire-submitted" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+	<div class="modal-content">
+	<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">Färdigt</h4>
+	</div>
+	<div class="modal-body">
+	<p>Tack för din medverkan!</p>
+	</div>
+	<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">Stäng</button>
+	</div>
+	</div>
+	</div>
+	</div>
+	<!-- MODAL DIALOGS END -->
+</body>
+</html>
