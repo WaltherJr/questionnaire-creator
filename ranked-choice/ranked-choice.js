@@ -63,9 +63,11 @@ function ranked_choice_install_event_listeners(ranked_choice) {
 }
 
 function ranked_choice_create_new(steps) {
+	var attribute_slider_steps = ranked_choice_data.attribute('SLIDER_STEPS');
+
 	var ranked_choice = $(document.createElement('div')).attr({
 		'class': ranked_choice_data.classname('RANKED_CHOICE'),
-		ranked_choice_data.attribute('SLIDER_STEPS'): steps
+		attribute_slider_steps: steps
 	});
 
 	var ranked_choice_alternatives_list = $(document.createElement('ul')).attr({
