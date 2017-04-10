@@ -1,3 +1,5 @@
+"use strict";
+
 var RUN_TESTS = true;
 
 function init_test_setting() {

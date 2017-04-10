@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "library(shiny)\n\n# Define server logic for random distribution application\nfunction(input, output) {\n  \n  # Reactive expression to generate the requested distribution. This is \n  # called whenever the inputs change. The output expressions defined \n  # below then all used the value computed from this expression\n  data <- reactive({\n    dist <- switch(input$dist,\n                   norm = rnorm,\n                   unif = runif,\n                   lnorm = rlnorm,\n                   exp = rexp,\n                   rnorm)\n    \n    dist(input$n)\n  })\n  \n  # Generate a plot of the data. Also uses the inputs to build the \n  # plot label. Note that the dependencies on both the inputs and\n  # the data reactive expression are both tracked, and all expressions \n  # are called in the sequence implied by the dependency graph\n  output$plot <- renderPlot({\n    dist <- input$dist\n    n <- input$n\n    \n    hist(data(), \n         main=paste('r', dist, '(', n, ')', sep=''))\n  })\n  \n  # Generate a summary of the data\n  output$summary <- renderPrint({\n    input$mydata\n  })\n  \n  # Generate an HTML table view of the data\n  output$table <- renderTable({\n    data.frame(x=data())\n  })\n  \n}\n",
+    "created" : 1483099607516.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2789071773",
+    "id" : "D3AA7B33",
+    "lastKnownWriteTime" : 1483100565,
+    "last_content_update" : 1483100565,
+    "path" : "C:/shiny-examples/008-html/server.R",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

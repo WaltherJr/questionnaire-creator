@@ -1,3 +1,5 @@
+"use strict";
+
 var select_list_data = (function() {
 	var classnames = {
 		'LIST': 'select-list',

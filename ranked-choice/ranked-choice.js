@@ -1,3 +1,5 @@
+"use strict";
+
 var ranked_choice_data = (function() {
 	var classnames = {
 		'RANKED_CHOICE': 'ranked-choice',
@@ -62,13 +64,14 @@ function ranked_choice_install_event_listeners(ranked_choice) {
 	});
 }
 
-function ranked_choice_create_new(steps) {
+function ranked_choice_create_new(steps, update_slider_bar_function_callback) {
 	var attribute_slider_steps = ranked_choice_data.attribute('SLIDER_STEPS');
 
 	var ranked_choice = $(document.createElement('div')).attr({
-		'class': ranked_choice_data.classname('RANKED_CHOICE'),
-		attribute_slider_steps: steps
+		'class': ranked_choice_data.classname('RANKED_CHOICE')
 	});
+
+	ranked_choice.attr(attribute_slider_steps, steps);
 
 	var ranked_choice_alternatives_list = $(document.createElement('ul')).attr({
 		'class': ranked_choice_data.classname('ALTERNATIVES_LIST')
@@ -81,19 +84,30 @@ function ranked_choice_create_new(steps) {
 	ranked_choice.append(ranked_choice_alternatives_list, ranked_choice_slider_bar);
 	ranked_choice_install_event_listeners(ranked_choice);
 
+	if (typeof(update_slider_bar_function_callback) !== 'undefined') {
+		ranked_choice_set_slider_bar_update_function_callback(ranked_choice, update_slider_bar_function_callback);
+	} else {
+		ranked_choice_set_slider_bar_update_function_callback(ranked_choice, function(){});
+	}
+
 	return ranked_choice;
 }
 
 function ranked_choice_update_slider_bar(ranked_choice) {
-	var function_callback = ranked_choice.data(RANKED_CHOICE_CONSTANTS.SLIDER_BAR_UPDATE_FUNCTION_CALLBACK);
+	var function_callback = ranked_choice.data(ranked_choice_data.constant('SLIDER_BAR_UPDATE_FUNCTION_CALLBACK'));
 
-	if (function_callback !== undefined) {
-		function_callback(ranked_choice.children(RANKED_CHOICE_SELECTORS.SLIDER_BAR), ranked_choice.children(RANKED_CHOICE_SELECTORS.ALTERNATIVES_LIST));
+	if (function_callback !== 'undefined') {
+		var slider_bar = ranked_choice_get_slider_bar(ranked_choice);
+		var alternatives_list = ranked_choice_get_alternatives_list(ranked_choice);
+
+		console.log(slider_bar + ", " + alternatives_list);
+
+		function_callback(slider_bar, alternatives_list);
 	}
 }
 
 function ranked_choice_set_slider_bar_update_function_callback(ranked_choice, function_callback) {
-	ranked_choice.data(RANKED_CHOICE_CONSTANTS.SLIDER_BAR_UPDATE_FUNCTION_CALLBACK, function_callback);
+	ranked_choice.data(ranked_choice_data.constant('SLIDER_BAR_UPDATE_FUNCTION_CALLBACK'), function_callback);
 }
 
 function ranked_choice_alternative_slider_drag_handle_key_down_event(event) {
@@ -101,11 +115,11 @@ function ranked_choice_alternative_slider_drag_handle_key_down_event(event) {
 
 	if (event.keyCode == 37) {
 		if (ranked_choice_move_alternative(alternative, -1)) {
-			ranked_choice_update_slider_bar(alternative.closest(RANKED_CHOICE_SELECTORS.RANKED_CHOICE));
+			ranked_choice_update_slider_bar(alternative.closest(ranked_choice_data.selector('RANKED_CHOICE')));
 		}
 	} else if (event.keyCode == 39) {
 		if (ranked_choice_move_alternative(alternative, 1)) {
-			ranked_choice_update_slider_bar(alternative.closest(RANKED_CHOICE_SELECTORS.RANKED_CHOICE));
+			ranked_choice_update_slider_bar(alternative.closest(ranked_choice_data.selector('RANKED_CHOICE')));
 		}
 	}
 }
@@ -183,22 +197,29 @@ function ranked_choice_alternative_mouse_down_event(event) {
 	*/
 }
 
-function ranked_choice_get_choice_type(ranked_choice) {
-	return ranked_choice.attr(ATTR_RANKED_CHOICE_CHOICE_TYPE);
+function ranked_choice_get_alternative(ranked_choice, alternative_index) {
+	var alternative = ranked_choice_get_alternatives_list(ranked_choice).children('li:nth-child(' + alternative_index + ')');
+
+	if (alternative.length === 1) {
+		return alternative[0];
+	} else {
+		return null;
+	}
 }
 
 function ranked_choice_get_alternative_position(alternative) {
-	return parseInt($(alternative).attr('data-position'));
+	return parseInt(alternative.attr(ranked_choice_data.attribute('ALTERNATIVE_POSITION')));
 }
 
 function ranked_choice_get_alternative_text(alternative) {
-	return $(alternative).find(RANKED_CHOICE_SELECTORS.ALTERNATIVE_TEXT).text();
+	return $(alternative).find(ranked_choice_data.selector('ALTERNATIVE_TEXT')).text();
 }
 
 function ranked_choice_set_alternative_position(ranked_choice, alternative, position) {
+	console.log(position);
 	var alternative_offset = ((position-1) / (ranked_choice_get_slider_bar_steps(ranked_choice)-1)) * 100;
 
-	alternative.attr(RANKED_CHOICE_ATTRIBUTES.ALTERNATIVE_POSITION, position);
+	alternative.attr(ranked_choice_data.attribute('ALTERNATIVE_POSITION'), position);
 	alternative.css('left', Math.round(alternative_offset) + '%');
 }
 
@@ -212,45 +233,32 @@ function ranked_choice_get_alternatives_positions(ranked_choice) {
 	return alternatives_positions;
 }
 
+function ranked_choice_get_slider_bar(ranked_choice) {
+	return ranked_choice.children(ranked_choice_data.selector('SLIDER_BAR'));
+}
+
 function ranked_choice_get_slider_bar_steps(ranked_choice) {
-	return parseInt(ranked_choice.attr(RANKED_CHOICE_ATTRIBUTES.SLIDER_STEPS));
+	return parseInt(ranked_choice.attr(ranked_choice_data.attribute('SLIDER_STEPS')));
+}
+
+function ranked_choice_set_slider_bar_steps(ranked_choice, steps) {
+	ranked_choice.attr(ranked_choice_data.attribute('SLIDER_STEPS'), steps);
 }
 
 function ranked_choice_move_alternative(alternative, direction) {
 	if (direction == -1 || direction == 1) {
-		var ranked_choice_slider_bar_steps = ranked_choice_get_slider_bar_steps(alternative.closest(RANKED_CHOICE_SELECTORS.RANKED_CHOICE));
+		var ranked_choice_slider_bar_steps = ranked_choice_get_slider_bar_steps(alternative.closest(ranked_choice_data.selector('RANKED_CHOICE')));
 		var alternative_new_position = ranked_choice_get_alternative_position(alternative) + direction;
 
 		if (alternative_new_position < 1 || alternative_new_position > ranked_choice_slider_bar_steps) {
 			return false;
 		} else {
-			ranked_choice_set_alternative_position(alternative.closest(RANKED_CHOICE_SELECTORS.RANKED_CHOICE), alternative, alternative_new_position);
+			ranked_choice_set_alternative_position(alternative.closest(ranked_choice_data.selector('RANKED_CHOICE')), alternative, alternative_new_position);
 			return true;
 		}
 	} else {
 		return false;
 	}
-}
-
-function getMinAndMaxRankedChoicePositions(ranked_choice_alternatives_list, ranked_choice_slider_bar) {
-	var total_number_of_steps = parseInt($(ranked_choice_slider_bar).attr(ATTR_RANKED_CHOICE_SLIDER_STEPS));
-	var min_ranked_choice_position = total_number_of_steps;
-	var max_ranked_choice_position = -total_number_of_steps;
-
-	$(ranked_choice_alternatives_list).children("li:not([style*='display: none'])").each(function(index, ranked_choice) {
-		var ranked_choice_position = parseInt($(ranked_choice).attr(ATTR_RANKED_CHOICE_ALTERNATIVE_POSITION));
-
-		if (ranked_choice_position >= max_ranked_choice_position) {
-			max_ranked_choice_position = ranked_choice_position;
-		}
-
-		if (ranked_choice_position <= min_ranked_choice_position) {
-			min_ranked_choice_position = ranked_choice_position;
-		}
-	});
-
-	var min_max_arr = [min_ranked_choice_position, max_ranked_choice_position];
-	return min_max_arr;
 }
 
 function ranked_choice_get_alternatives_list(ranked_choice) {
@@ -259,16 +267,16 @@ function ranked_choice_get_alternatives_list(ranked_choice) {
 
 function ranked_choice_get_alternatives(ranked_choice_element) {
 	return $(ranked_choice_element)
-			.closest(RANKED_CHOICE_SELECTORS.RANKED_CHOICE)
-			.find(RANKED_CHOICE_SELECTORS.ALTERNATIVES_LIST).children('li');
+			.closest(ranked_choice_data.selector('RANKED_CHOICE'))
+			.find(ranked_choice_data.selector('ALTERNATIVES_LIST')).children('li');
 }
 
 function ranked_choice_update_alternatives_positions(ranked_choice) {
 	var ranked_choice_alternatives_list = ranked_choice.children('.ranked-choice-alternatives-list');
 
 	ranked_choice_alternatives_list.children('li').each(function(index, alternative) {
-		var alternative_slider_drag_handle = $(alternative).find(RANKED_CHOICE_SELECTORS.ALTERNATIVE_SLIDER_DRAG_HANDLE);
-		var alternative_polygon = $(alternative).find(RANKED_CHOICE_SELECTORS.ALTERNATIVE_POLYGON);
+		var alternative_slider_drag_handle = $(alternative).find(ranked_choice_data.selector('ALTERNATIVE_SLIDER_DRAG_HANDLE'));
+		var alternative_polygon = $(alternative).find(ranked_choice_data.selector('ALTERNATIVE_POSITION'));
 		var alternative_slider_drag_handle_new_top_position = ranked_choice_alternatives_list.outerHeight(true) - $(alternative).position().top - alternative_slider_drag_handle.outerHeight();
 		var alternative_polygon_new_height = ranked_choice_alternatives_list.outerHeight(true) - $(alternative).position().top - $(alternative).outerHeight() - $(alternative_slider_drag_handle).outerHeight();
 
@@ -298,14 +306,24 @@ function ranked_choice_add_alternative(ranked_choice, alternative_position, alte
 		if (alternative_data.editable === false) {
 			new_alternative_text.attr('contenteditable', 'false');
 		}
+
+		if (typeof(alternative_data.font) === 'object' && alternative_data.font !== null) {
+			if (alternative_data.font.size !== null) {
+				new_alternative_text.css('font-size', alternative_data.font.size);
+			}
+
+			if (alternative_data.font.weight !== null) {
+				new_alternative_text.css('font-weight', alternative_data.font.weight);
+			}
+		}
 	} else {
-		new_alternative_text.text(RANKED_CHOICE_CONSTANTS.DEFAULT_ALTERNATIVE_TEXT);
+		new_alternative_text.text(ranked_choice_data.constant('DEFAULT_ALTERNATIVE_TEXT'));
 	}
 
 	$(new_alternative).append(new_alternative_text, new_alternative_remove_button, new_alternative_polygon, new_alternative_slider_drag_handle);
 
 	if (typeof(alternative_position) === 'undefined') {
-		ranked_choice_set_alternative_position(ranked_choice, new_alternative, RANKED_CHOICE_CONSTANTS.DEFAULT_ALTERNATIVE_POSITION);
+		ranked_choice_set_alternative_position(ranked_choice, new_alternative, ranked_choice_data.attribute('DEFAULT_ALTERNATIVE_POSITION'));
 	} else {
 		ranked_choice_set_alternative_position(ranked_choice, new_alternative, alternative_position);
 	}
@@ -319,16 +337,10 @@ function ranked_choice_add_alternative(ranked_choice, alternative_position, alte
 }
 
 function ranked_choice_remove_alternative(alternative) {
-	if (alternative == null || $(alternative).parent('.ranked-choice-alternatives-list').length == 0) {
+	if (alternative == null || $(alternative).parent(ranked_choice_data.selector('ALTERNATIVES_LIST')).length == 0) {
 		return false;
 	} else {
-		alternative.children(RANKED_CHOICE_SELECTORS.ALTERNATIVE_REMOVE_BUTTON).tooltip('destroy');
-
-		var ranked_choice = alternative.closest(RANKED_CHOICE_SELECTORS.RANKED_CHOICE);
-		var removed = alternative.remove();
-
-		ranked_choice_update_alternatives_positions(ranked_choice);
-
-		return removed.length == 1;
+		alternative.remove();
+		return true;
 	}
 }
