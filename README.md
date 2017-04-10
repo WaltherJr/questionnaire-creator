@@ -8,5 +8,5 @@ A digital questionnaire creator. The question types supported are:
 * Single choice: dropdown list
 * Single choice: radio buttons
 * Multiple choice: dropdown list
-* Multiple choice: Checkboxes
+* Multiple choice: checkboxes
 * Ranked choice
