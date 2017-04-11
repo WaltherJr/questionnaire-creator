@@ -9,4 +9,4 @@ A WYSIWYG digital questionnaire creator. The question types supported are:
 * Single choice: radio buttons
 * Multiple choice: dropdown list
 * Multiple choice: checkboxes
-* Ranked choice — Custom choice type with a user-defined ranking of choices.
+* Ranked choice — custom choice type with a user-defined ranking of choices.
