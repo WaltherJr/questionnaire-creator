@@ -1,6 +1,6 @@
 "use strict";
 
-// QUnit unit test for 'questionnaire' software part
+// QUnit unit test for questionnaire creator 'core' functionality
 
 var RUN_TESTS = true;
 
