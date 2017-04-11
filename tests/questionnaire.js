@@ -1,5 +1,7 @@
 "use strict";
 
+// QUnit unit test for 'questionnaire' software part
+
 var RUN_TESTS = true;
 
 function init_test_setting() {
@@ -25,19 +27,29 @@ if (RUN_TESTS == true) {
 		QUnit.module('Questionnaire operations');
 
 		QUnit.test('Add question', function(assert) {
-			assert.expect(3);
+			assert.expect(5);
 
 			assert.strictEqual(questionnaire_get_questions().length, 0);
-			assert.ok(questionnaire_add_question());
+
+			var question = questionnaire_add_question();
+			var question_type_div = questionnaire_get_question_type_div(question);
+
+			assert.ok(question);
+			assert.ok(question_type_div);
 			assert.strictEqual(questionnaire_get_questions().length, 1);
+			assert.strictEqual($(question_type_div).html(), questionnaire_get_question_type_prototype(questionnaire.question_type.default_type).html());
 		});
 
 		QUnit.test('Add heading and description', function(assert) {
-			assert.expect(3);
+			assert.expect(4);
 
 			assert.strictEqual(questionnaire_get_heading_and_descriptions().length, 0);
-			assert.ok(questionnaire_add_heading_and_description());
+
+			var heading_and_description = questionnaire_add_heading_and_description();
+
+			assert.ok(heading_and_description);
 			assert.strictEqual(questionnaire_get_heading_and_descriptions().length, 1);
+			assert.strictEqual($(heading_and_description).html(), questionnaire_get_heading_and_description_prototype().html());
 		});
 
 		QUnit.test('Add image', function(assert) {
@@ -174,35 +186,26 @@ if (RUN_TESTS == true) {
 			assert.strictEqual(questionnaire_is_question_type_valid(function() {}), false);
 		});
 
-		/*
-			Changes from all valid question types to all valid question types, the two cases are:
-				1. From one valid question type to a different valid question type
-				2. From one valid question type to the same valid question type
-		*/
-		QUnit.test('Change to valid question type', function(assert) {
-			assert.expect((Object.keys(questionnaire.question_types).length * 3) + 1);
-
-			var question = questionnaire_add_question();
-
-			assert.ok(question);
+		QUnit.test('Change to same question type', function(assert) {
+			assert.expect(2*Object.keys(questionnaire.question_types).length);
 
 			for (var question_type in questionnaire.question_types) {
-				var old_question_type = questionnaire_get_question_type(question);
-				var new_question_type = questionnaire.question_types[question_type];
+				var question = questionnaire_add_question(questionnaire.question_types[question_type]);
 
-				assert.ok(old_question_type);
+				assert.ok(question);
 
-				if (old_question_type != new_question_type) {
-					assert.strictEqual(questionnaire_change_question_type(question, new_question_type), true);
-					assert.strictEqual(questionnaire_get_question_type(question), new_question_type);
-					assert.strictEqual(questionnaire_get_question_type_div(new_question_type).html(),
-										questionnaire_get_question_type_div(question).html());
-				} else {
-					assert.strictEqual(questionnaire_change_question_type(question, new_question_type), false);
-					assert.strictEqual(questionnaire_get_question_type(question), old_question_type);
-				}
+				// A change to the same question type should return 'false' and not change question markup
+				assert.strictEqual(questionnaire_change_question_type(question, questionnaire.question_types[question_type]), false);
 			}
 		});
+
+		/*
+		QUnit.test('Change to other valid question type', function(assert) {
+			for (var question_type in questionnaire.question_types) {
+				var question = questionnaire_add_question(questionnaire.question_types[question_type]);
+			}
+		});
+		*/
 
 		QUnit.test('Change to incorrect question type', function(assert) {
 			assert.expect(7);
@@ -210,11 +213,11 @@ if (RUN_TESTS == true) {
 			var question = questionnaire_add_question();
 
 			assert.ok(question);
-			assert.strictEqual(questionnaire_get_question_type(question), questionnaire.default_question_type);
+			assert.strictEqual(questionnaire_get_question_type(question), questionnaire.question_type.default_type);
 			assert.strictEqual(questionnaire_change_question_type(question, 'incorrect-question-type'), false);
-			assert.strictEqual(questionnaire_get_question_type(question), questionnaire.default_question_type);
+			assert.strictEqual(questionnaire_get_question_type(question), questionnaire.question_type.default_type);
 			assert.strictEqual(questionnaire_change_question_type(question), false);
-			assert.strictEqual(questionnaire_get_question_type(question), questionnaire.default_question_type);
+			assert.strictEqual(questionnaire_get_question_type(question),  questionnaire.question_type.default_type);
 			assert.strictEqual(questionnaire_change_question_type(question, 342), false);
 		});
 

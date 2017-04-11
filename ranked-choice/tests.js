@@ -1,5 +1,7 @@
 "use strict";
 
+// QUnit unit test for custom 'ranked choice' widget software part
+
 var RUN_TESTS = true;
 
 function init_test_setting() {

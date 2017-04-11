@@ -53,7 +53,9 @@ var questionnaire_data = (function() {
 
 var questionnaire = {
 	question_type: {
-		attribute_name: 'data-current-question-type'
+		attribute_name: 'data-current-question-type',
+		prototypes_selector: '#questionnaire-question-types',
+		default_type: 'short-answer'
 	},
 	question_types: {
 		short_answer: 'short-answer',
@@ -62,9 +64,8 @@ var questionnaire = {
 		single_choice_radio_buttons: 'single-choice-radio-buttons',
 		multiple_choice_list: 'multiple-choice-list',
 		multiple_choice_checkboxes: 'multiple-choice-checkboxes',
-		ranked_choice: 'ranked-choice'
+		ranked_choice: 'ranked-choice',
 	},
-	default_question_type: 'ranked-choice',
 	default_section_sort_function: function(section_a, section_b) {
 		return questionnaire_get_section_position(section_a) - questionnaire_get_section_position(section_b);
 	},
@@ -85,7 +86,11 @@ var questionnaire = {
 	question: {
 		question_types_list: {
 			selector: '.questionnaire-question-types-list'
-		}
+		},
+		prototype_selector: '.question[style*="display: none"]'
+	},
+	heading_and_description: {
+		prototype_selector: '.heading-and-description[style*="display: none"]'
 	},
 	operations_toolbar: {
 		selector: '.questionnaire-operations-toolbar'
@@ -290,7 +295,7 @@ function questionnaire_deactivate_section_toolbar_tooltips(sections) {
 function questionnaire_install_main_toolbar_event_listeners() {
 	$('.questionnaire-add-question-button').on('click', function() {
 		$(this).blur();
-		questionnaire_add_question(questionnaire.default_question_type);
+		questionnaire_add_question(questionnaire.question_type.default_type);
 	});
 
 	$('.questionnaire-add-heading-and-description-button').on('click', function() {
@@ -559,15 +564,27 @@ function questionnaire_get_question_type(question) {
 	}
 }
 
-function questionnaire_get_question_type_div(question_type_or_div) {
-	if (question_type_or_div == undefined) {
+function questionnaire_get_question_prototype() {
+	return $(questionnaire.question.prototype_selector);
+}
+
+function questionnaire_get_heading_and_description_prototype() {
+	return $(questionnaire.heading_and_description.prototype_selector);
+}
+
+function questionnaire_get_question_type_prototype(question_type) {
+	if (question_type == undefined) {
 		return false;
 	} else {
-		if (typeof(question_type_or_div) === 'string') {
-			return $(questionnaire.question_types.selector).children('.question-type-' + question_type_or_div);
-		} else if (typeof(question_type_or_div) === 'object') {
-			return $(question_type_or_div).find('div[class*="question-type"]');
-		}
+		return $(questionnaire.question_type.prototypes_selector).children('.question-type-' + question_type);
+	}
+}
+
+function questionnaire_get_question_type_div(question) {
+	if (question == undefined) {
+		return false;
+	} else {
+		return $(question).children('.panel-body').children('div[class*="question-type-"]');
 	}
 }
 
@@ -680,16 +697,21 @@ function questionnaire_change_question_typeBetweenSingleChoiceAndMultipleChoice(
 
 function questionnaire_change_question_type(question, new_question_type) {
 	//var question_number = $(question).index();
+	console.log(question);
+
 	var current_question_type = questionnaire_get_question_type(question);
 
-	if (!questionnaire_is_question_type_valid(new_question_type) || current_question_type === new_question_type) {
-		// No changes needed
+	console.log(current_question_type);
+
+	if (!questionnaire_is_question_type_valid(new_question_type)) {
+		// Cannot change to an invalid question type
+		return false;
+	} else if (current_question_type === new_question_type) {
+		// Change to the same question type => no change really needed
 		return false;
 	} else {
 		var new_question_type_div = $('#questionnaire-question-types > .question-type-' + new_question_type).clone(true, true);
-		var old_question_type_div = $(question).children('.panel-body').children('div[class*="question-type"]');
-
-		console.log(new_question_type_div);
+		var old_question_type_div = $(question).children('.panel-body').children('div[class*="question-type-"]');
 
 		old_question_type_div.replaceWith(new_question_type_div);
 
@@ -990,20 +1012,20 @@ function questionnaire_add_section(section_div, before_dom_insertion_callback) {
 
 function questionnaire_add_question(question_type) {
 	if (question_type == undefined) {
-		question_type = questionnaire.default_question_type;
+		question_type = questionnaire.question_type.default_type;
 	}
 
 	if (!questionnaire_is_question_type_valid(question_type)) {
 		return false;
 	} else {
-		return questionnaire_add_section($('.question[style*="display: none"]'), function(cloned_question_div) {
+		return questionnaire_add_section(questionnaire_get_question_prototype(), function(cloned_question_div) {
 			questionnaire_change_question_type(cloned_question_div, question_type);
 		});
 	}
 }
 
 function questionnaire_add_heading_and_description() {
-	return questionnaire_add_section($('.heading-and-description[style*="display: none"]'));
+	return questionnaire_add_section(questionnaire_get_heading_and_description_prototype());
 }
 
 function questionnaire_update_section_z_indexes() {

@@ -1,5 +1,7 @@
 "use strict";
 
+// QUnit unit test for custom 'select list' widget software part
+
 var RUN_TESTS = true;
 
 function init_test_setting() {
