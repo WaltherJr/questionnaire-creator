@@ -1,7 +1,7 @@
 Questionnaire creator
 =====================
 
-A digital questionnaire creator. The question types supported are:
+A WYSIWYG digital questionnaire creator. The question types supported are:
 
 * Short answer
 * Paragraph
