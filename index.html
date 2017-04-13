@@ -21,6 +21,7 @@
 		<script src="js/questionnaire-preview.js"></script>
 		<script src="js/questionnaire-validation.js"></script>
 		<script src="tests/questionnaire.js"></script>
+		<script src="tests/questionnaire-preview.js"></script>
 	</head>
 
 <body>
@@ -84,6 +85,7 @@
 					<header>
 						<h1 class="questionnaire-title" contenteditable="true" spellcheck="false">Namnlöst formulär</h1><hr>
 						<p class="lead questionnaire-description" contenteditable="true" spellcheck="false">Beskrivning av formulär</p>
+						<p contenteditable="true"><a href="hehe.html">Testar lite</a></p>
 					</header>
 					<footer style="display: none">
 						<button id="questionnaire-submit-button" type="button" class="btn btn-primary btn-lg btn-block">Skicka in svar</button>
@@ -192,7 +194,7 @@
 	<div id="questionnaire-question-types">
 		<!-- Short answer -->
 		<div class="question-type-short-answer">
-			<input type="text" class="form-control question-short-answer-text" spellcheck="true" placeholder="Kort svarstext">
+			<input type="text" class="form-control question-short-answer-text" spellcheck="true" placeholder="Kort svarstext" value="">
 		</div>
 
 		<!-- Paragraph -->
@@ -259,7 +261,7 @@
 
 	<!-- MODAL DIALOGS BEGIN -->
 	<!-- Add image modal -->
-	<div class="modal fade" id="modal-add-image" tabindex="-1" role="dialog">
+	<div id="questionnaire-add-image-modal-dialog" class="modal fade" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-sm" role="document">
 	<div class="modal-content">
 	<div class="modal-header">
@@ -270,7 +272,7 @@
 	<form>
 	<div class="form-group">
 	<label class="lbl-image-address" for="txt-image-address">Bildadress:</label>
-	<input id="txt-image-address" type="text" class="form-control" placeholder="http://www.example.com/image.jpg">
+	<input id="txt-image-address" type="text" class="form-control">
 	</div>
 	</form>
 	</div>
@@ -283,7 +285,7 @@
 	</div>
 
 	<!-- Add hyperlink/email-link modal -->
-	<div class="modal fade" id="modal-add-link" tabindex="-1" role="dialog">
+	<div id="questionnaire-add-link-modal-dialog" class="modal fade" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-sm" role="document">
 	<div class="modal-content">
 	<div class="modal-header">
@@ -311,7 +313,7 @@
 	</div>
 
 	<!-- Clear questionnaire modal -->
-	<div class="modal fade" id="modal-clear-questionnaire" tabindex="-1" role="dialog">
+	<div id="questionnaire-clear-questionnaire-modal-dialog" class="modal fade" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-sm" role="document">
 	<div class="modal-content">
 	<div class="modal-header">
@@ -329,7 +331,7 @@
 	</div>
 	</div>
 
-	<div class="modal fade" id="modal-questionnaire-submitted" tabindex="-1" role="dialog">
+	<div id="questionnaire-questionnaire-submitted-modal-dialog" class="modal fade" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-sm" role="document">
 	<div class="modal-content">
 	<div class="modal-header">

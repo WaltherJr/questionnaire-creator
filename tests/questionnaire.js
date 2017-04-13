@@ -2,7 +2,7 @@
 
 // QUnit unit test for questionnaire creator 'core' functionality
 
-var RUN_TESTS = true;
+var RUN_QUESTIONNAIRE_CORE_TESTS = true;
 
 function init_test_setting() {
 	var div1 = document.createElement('div');
@@ -15,12 +15,11 @@ function init_test_setting() {
 	$('body').html('').append(div1).append(div2);
 
 	QUnit.config.requireExpects = true;
-	QUnit.config.noglobals = true;
 	QUnit.config.reorder = false;
 	QUnit.config.seed = seed;
 }
 
-if (RUN_TESTS == true) {
+if (RUN_QUESTIONNAIRE_CORE_TESTS == true) {
 	$(document).ready(function() {
 		init_test_setting();
 
@@ -57,16 +56,6 @@ if (RUN_TESTS == true) {
 			assert.equal(1,1);
 		});
 
-		QUnit.test('Add hyperlink', function(assert) {
-			assert.expect(1);
-			assert.equal(1,1);
-		});
-
-		QUnit.test('Add email-link', function(assert) {
-			assert.expect(1);
-			assert.equal(1,1);
-		});
-
 		QUnit.test('Preview questionnaire', function(assert) {
 			assert.expect(8);
 
@@ -86,6 +75,48 @@ if (RUN_TESTS == true) {
 			assert.strictEqual(questionnaire_preview_questionnaire(false), true);
 
 			preview_mode_assertions(false);
+		});
+
+		QUnit.module('Create links', {
+			beforeEach: function() {
+				var range = document.createRange();
+				range.selectNode($('.questionnaire-title').get(0));
+				var selection = document.getSelection();
+				selection.removeAllRanges();
+				selection.addRange(range);
+
+				this.range = range;
+				this.selection = selection;
+			}
+		});
+
+		QUnit.test('Create hyperlink from selection', function(assert) {
+			assert.expect(5);
+
+			var new_hyperlink = questionnaire_create_hyperlink_from_selection(this.selection, this.range, 'http://www.example.com');
+
+			assert.ok(new_hyperlink);
+			assert.strictEqual($(new_hyperlink).attr('href'), 'http://www.example.com');
+			assert.strictEqual($(new_hyperlink).attr('target'), '_blank');
+			assert.strictEqual($(new_hyperlink).text(), questionnaire.title.default_text);
+
+			// The selection should be surrounded by an new anchor element:
+			assert.strictEqual($(questionnaire.title.selector).parent().get(0).tagName.toLowerCase(), 'a');
+		});
+
+		QUnit.test('Create email-link from selection', function(assert) {
+			assert.expect(5);
+
+			var recipient = 'joe@example.com';
+			var new_email_link = questionnaire_create_email_link_from_selection(this.selection, this.range, recipient);
+
+			assert.ok(new_email_link);
+			assert.strictEqual($(new_email_link).attr('href'), 'mailto:' + recipient);
+			assert.strictEqual($(new_email_link).attr('target'), '_blank');
+			assert.strictEqual($(new_email_link).text(), questionnaire.title.default_text);
+
+			// The selection should be surrounded by an new anchor element:
+			assert.strictEqual($(questionnaire.title.selector).parent().get(0).tagName.toLowerCase(), 'a');
 		});
 
 		QUnit.module('Clear questionnaire', {
@@ -114,7 +145,7 @@ if (RUN_TESTS == true) {
 		});
 
 		QUnit.test('Via "Clear questionnaire" toolbar button', function(assert) {
-			assert.expect(14);
+			assert.expect(8 + 3 + 3);
 
 			assert.ok(questionnaire_clear());
 			assert.strictEqual(questionnaire_get_title(), questionnaire.title.default_text);
@@ -122,7 +153,7 @@ if (RUN_TESTS == true) {
 		});
 
 		QUnit.test('Via "Remove section" button', function(assert) {
-			assert.expect(13);
+			assert.expect(8 + 2 + 3);
 
 			questionnaire_get_sections().each(function(index, section) {
 				assert.ok(questionnaire_remove_section($(section)));
@@ -271,7 +302,8 @@ if (RUN_TESTS == true) {
 			var done = assert.async();
 
 			setTimeout(function() {
-				assert.strictEqual(cloned_heading_and_description.position().top, heading_and_description_top + heading_and_description.outerHeight(true));
+				assert.strictEqual(Math.round(cloned_heading_and_description.position().top),
+									Math.round(heading_and_description_top + heading_and_description.outerHeight(true)));
 				done();
 			}, 1100);
 		});
@@ -290,7 +322,7 @@ if (RUN_TESTS == true) {
 			var done = assert.async();
 
 			setTimeout(function() {
-				assert.strictEqual(cloned_question.position().top, question_top + question.outerHeight(true));
+				assert.strictEqual(Math.round(cloned_question.position().top), Math.round(question_top + question.outerHeight(true)));
 				done();
 			}, 1100);
 		});
