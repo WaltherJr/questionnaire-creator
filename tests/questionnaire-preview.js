@@ -10,7 +10,129 @@ if (RUN_QUESTIONNAIRE_PREVIEW_TESTS == true) {
   			return Math.floor(Math.random() * (max - min + 1)) + min;
 		}
 
-		QUnit.module('QUESTIONNAIRE PREVIEW', {
+		var question_types_before_test_functions = {
+			short_answer: function(question_type_div, assert, preview_enabled) {
+				assert.strictEqual($(question_type_div).find('.question-short-answer-text').val(), '');
+			},
+			paragraph: function(question_type_div, assert, preview_enabled) {
+				assert.strictEqual($(question_type_div).find('.question-paragraph-text').val(), '');
+			},
+			single_choice_list: function(question_type_div, assert, preview_enabled) {
+				assert.ok(true);
+			},
+			single_choice_radio_buttons: function(question_type_div, assert, preview_enabled) {
+				assert.ok(true);
+			},
+			multiple_choice_list: function(question_type_div, assert, preview_enabled) {
+				assert.ok(true);
+			},
+			multiple_choice_checkboxes: function(question_type_div, assert, preview_enabled) {
+				assert.ok(true);
+			},
+			ranked_choice: function(question_type_div, assert, preview_enabled) {
+				assert.ok(true);
+			}
+		};
+
+		var question_types_after_test_functions = {
+			short_answer: function(question_type_div, assert) {
+				assert.strictEqual($(question_type_div).find('.question-short-answer-text').val(), '');
+			},
+			paragraph: function(question_type_div, assert) {
+				assert.strictEqual($(question_type_div).find('.question-paragraph-text').val(), '');
+			},
+			single_choice_list: function(question_type_div, assert) {
+				assert.ok(true);
+			},
+			single_choice_radio_buttons: function(question_type_div, assert) {
+				assert.ok(true);
+			},
+			multiple_choice_list: function(question_type_div, assert) {
+				assert.ok(true);
+			},
+			multiple_choice_checkboxes: function(question_type_div, assert) {
+				assert.ok(true);
+			},
+			ranked_choice: function(question_type_div, assert) {
+				assert.ok(true);
+			}
+		};
+
+		QUnit.module('hhe', {
+			before: function(assert) {
+				for (var question_type in questionnaire.question_types) {
+					assert.ok(questionnaire_add_question(questionnaire.question_types[question_type]));
+				}
+			},
+			after: function(assert) {
+				questionnaire_get_questions().each(function(index, question) {
+					var question_type_key = questionnaire_get_question_type(question).replace(/-/g, '_');
+
+					if (question_types_after_test_functions[question_type_key] !== undefined) {
+						question_types_after_test_functions[question_type_key](questionnaire_get_question_type_div(question), assert);
+					}
+				});
+			}
+		});
+
+		QUnit.test('Preview question types', function(assert) {
+			var test_string = 'test';
+			// TODO: complete test
+			var AFF = 2;
+
+			assert.expect(2*Object.keys(questionnaire.question_types).length + AFF + 1);
+
+			// Short answer
+			questionnaire_get_questions('short-answer').children('.panel-body').children('.question-type-short-answer').find('.question-short-answer-text').val(test_string);
+			assert.strictEqual(questionnaire_get_questions('short-answer').children('.panel-body').children('.question-type-short-answer').find('.question-short-answer-text').val(), test_string);
+
+			// Paragraph
+			questionnaire_get_questions('paragraph').children('.panel-body').children('.question-type-paragraph').find('.question-paragraph-text').val(test_string);
+			assert.strictEqual(questionnaire_get_questions('paragraph').children('.panel-body').children('.question-type-paragraph').find('.question-paragraph-text').val(), test_string);
+
+			assert.ok(questionnaire_preview());
+		});
+
+		QUnit.module('apa');
+
+		QUnit.test('Toolbar button disabled state', function(assert) {
+			var number_of_questionnaire_operations_buttons = questionnaire_get_operations_toolbar().children('button').length;
+			var number_of_preview_button_assertions_made = 0;
+			var number_of_other_button_assertions_made = 0;
+
+			assert.expect(2*number_of_questionnaire_operations_buttons + 7);
+
+			questionnaire_get_operations_toolbar().children('button').each(function(index, button) {
+				if ($(button).hasClass(questionnaire.operations_toolbar.preview_button.classname)) {
+					assert.strictEqual($(button).hasClass('active'), false);
+					assert.strictEqual($(button).attr('data-original-title'),
+						questionnaire.operations_toolbar.preview_button.preview_mode_disabled_tooltip_text);
+				}
+
+				assert.strictEqual($(button).prop('disabled'), false);
+			});
+
+			assert.strictEqual(questionnaire_preview(), true);
+
+			questionnaire_get_operations_toolbar().children('button').each(function(index, button) {
+				if ($(button).hasClass(questionnaire.operations_toolbar.preview_button.classname)) {
+					assert.strictEqual($(button).prop('disabled'), false);
+					assert.strictEqual($(button).hasClass('active'), true);
+					assert.strictEqual($(button).attr('data-original-title'),
+						questionnaire.operations_toolbar.preview_button.preview_mode_enabled_tooltip_text);
+
+					number_of_preview_button_assertions_made++;
+				} else {
+					assert.strictEqual($(button).prop('disabled'), true);
+					number_of_other_button_assertions_made++;
+				}
+			});
+
+			assert.strictEqual(number_of_preview_button_assertions_made, 1);
+			assert.strictEqual(number_of_other_button_assertions_made, number_of_questionnaire_operations_buttons - 1);
+		});
+
+		QUnit.module('Preview questionnaire sections', {
 			beforeEach: function(assert) {
 				var max_number_of_added_sections = 20;
 				var min_number_of_added_sections = max_number_of_added_sections / 2;
@@ -57,7 +179,7 @@ if (RUN_QUESTIONNAIRE_PREVIEW_TESTS == true) {
 			}
 		});
 
-		QUnit.test('Preview questionnaire', function(assert) {
+		QUnit.test('Preview sections', function(assert) {
 			var number_of_preview_states = 2; // Preview mode: on/off
 			var number_of_questionnaire_assertions_made = number_of_preview_states * 3; // Title, description, footer: Preview on/off
 			var number_of_questionnaire_section_assertions_made = number_of_preview_states * (3*this.number_of_added_sections); // Section title, description, bottom menu: Preview on/off

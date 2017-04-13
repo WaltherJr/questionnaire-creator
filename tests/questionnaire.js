@@ -2,7 +2,7 @@
 
 // QUnit unit test for questionnaire creator 'core' functionality
 
-var RUN_QUESTIONNAIRE_CORE_TESTS = true;
+var RUN_QUESTIONNAIRE_CORE_TESTS = false;
 
 function init_test_setting() {
 	var div1 = document.createElement('div');
