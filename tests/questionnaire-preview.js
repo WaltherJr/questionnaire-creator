@@ -2,7 +2,7 @@
 
 // QUnit unit test for questionnaire creator 'preview' functionality
 
-var RUN_QUESTIONNAIRE_PREVIEW_TESTS = true;
+var RUN_QUESTIONNAIRE_PREVIEW_TESTS = false;
 
 if (RUN_QUESTIONNAIRE_PREVIEW_TESTS == true) {
 	$(document).ready(function() {
@@ -20,14 +20,34 @@ if (RUN_QUESTIONNAIRE_PREVIEW_TESTS == true) {
 			single_choice_list: function(question_type_div, assert, preview_enabled) {
 				assert.ok(true);
 			},
-			single_choice_radio_buttons: function(question_type_div, assert, preview_enabled) {
-				assert.ok(true);
-			},
 			multiple_choice_list: function(question_type_div, assert, preview_enabled) {
 				assert.ok(true);
 			},
-			multiple_choice_checkboxes: function(question_type_div, assert, preview_enabled) {
-				assert.ok(true);
+			single_choice_radio_buttons: function(question_type_div, assert) {
+				var radio_buttons = $(question_type_div).find('input[type="radio"]');
+				var radio_button_labels = radio_buttons.siblings('label');
+
+				radio_button_labels.each(function(index, label) {
+					assert.strictEqual($(label).attr('contenteditable'), 'true');
+				});
+
+				radio_buttons.each(function(index, radio_button) {
+					assert.strictEqual($(radio_button).prop('disabled'), true);
+					assert.strictEqual($(radio_button).is(':checked'), false);
+				});
+			},
+			multiple_choice_checkboxes: function(question_type_div, assert) {
+				var checkboxes = $(question_type_div).find('input[type="checkbox"]');
+				var checkbox_labels = checkboxes.siblings('label');
+
+				checkbox_labels.each(function(index, label) {
+					assert.strictEqual($(label).attr('contenteditable'), 'true');
+				});
+
+				checkboxes.each(function(index, checkbox) {
+					assert.strictEqual($(checkbox).prop('disabled'), true);
+					assert.strictEqual($(checkbox).is(':checked'), false);
+				})
 			},
 			ranked_choice: function(question_type_div, assert, preview_enabled) {
 				assert.ok(true);
@@ -44,24 +64,44 @@ if (RUN_QUESTIONNAIRE_PREVIEW_TESTS == true) {
 			single_choice_list: function(question_type_div, assert) {
 				assert.ok(true);
 			},
-			single_choice_radio_buttons: function(question_type_div, assert) {
-				assert.ok(true);
-			},
 			multiple_choice_list: function(question_type_div, assert) {
 				assert.ok(true);
 			},
+			single_choice_radio_buttons: function(question_type_div, assert) {
+				var radio_buttons = $(question_type_div).find('input[type="radio"]');
+				var radio_button_labels = radio_buttons.siblings('label');
+
+				radio_button_labels.each(function(index, label) {
+					assert.strictEqual($(label).attr('contenteditable'), 'false');
+				});
+
+				radio_buttons.each(function(index, radio_button) {
+					assert.strictEqual($(radio_button).prop('disabled'), false);
+					assert.strictEqual($(radio_button).is(':checked'), false);
+				});
+			},
 			multiple_choice_checkboxes: function(question_type_div, assert) {
-				assert.ok(true);
+				var checkboxes = $(question_type_div).find('input[type="checkbox"]');
+				var checkbox_labels = checkboxes.siblings('label');
+
+				checkbox_labels.each(function(index, label) {
+					assert.strictEqual($(label).attr('contenteditable'), 'false');
+				});
+
+				checkboxes.each(function(index, checkbox) {
+					assert.strictEqual($(checkbox).prop('disabled'), false);
+					assert.strictEqual($(checkbox).is(':checked'), false);
+				});
 			},
 			ranked_choice: function(question_type_div, assert) {
 				assert.ok(true);
 			}
 		};
 
-		QUnit.module('hhe', {
+		QUnit.module('Questionnaire preview tests', {
 			before: function(assert) {
 				for (var question_type in questionnaire.question_types) {
-					assert.ok(questionnaire_add_question(questionnaire.question_types[question_type]));
+					assert.ok(questionnaire_add_question(questionnaire.question_types[question_type].name));
 				}
 			},
 			after: function(assert) {
@@ -76,11 +116,9 @@ if (RUN_QUESTIONNAIRE_PREVIEW_TESTS == true) {
 		});
 
 		QUnit.test('Preview question types', function(assert) {
-			var test_string = 'test';
-			// TODO: complete test
-			var AFF = 2;
+			var test_string = 'Hello World!';
 
-			assert.expect(2*Object.keys(questionnaire.question_types).length + AFF + 1);
+			assert.expect(2 * questionnaire_get_number_of_question_types() + 1);
 
 			// Short answer
 			questionnaire_get_questions('short-answer').children('.panel-body').children('.question-type-short-answer').find('.question-short-answer-text').val(test_string);
@@ -89,6 +127,19 @@ if (RUN_QUESTIONNAIRE_PREVIEW_TESTS == true) {
 			// Paragraph
 			questionnaire_get_questions('paragraph').children('.panel-body').children('.question-type-paragraph').find('.question-paragraph-text').val(test_string);
 			assert.strictEqual(questionnaire_get_questions('paragraph').children('.panel-body').children('.question-type-paragraph').find('.question-paragraph-text').val(), test_string);
+
+			var select_radio_buttons_and_checkboxes = function(index, input_element) {
+				$(input_element).prop('selected', true);
+			};
+
+			// Single choice: radio buttons
+			var radio_buttons = questionnaire_get_questions('single-choice-radio-buttons').children('.panel-body').children('.question-type-single-choice-radio-buttons').find('input[type="radio"]');
+
+			// Multiple choice: checkboxes
+			var checkboxes = questionnaire_get_questions('multiple-choice-checkboxes').children('.panel-body').children('.question-type-multiple-choice-checkboxes').find('input[type="checkbox"]');
+
+			radio_buttons.each(select_radio_buttons_and_checkboxes);
+			checkboxes.each(select_radio_buttons_and_checkboxes);
 
 			assert.ok(questionnaire_preview());
 		});

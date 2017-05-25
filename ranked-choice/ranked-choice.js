@@ -54,14 +54,18 @@ function ranked_choice_install_event_listeners(ranked_choice) {
 		if (event.keyCode == 13) {
 			event.preventDefault(); // Prevent new line insertion
 		}
-	}).on('keydown', 'li > ' + ranked_choice_data.selector('ALTERNATIVE_SLIDER_DRAG_HANDLE'), function(event) {
+	});
+
+	$(document).on('keydown', '.ranked-choice-alternative-slider-drag-handle', function(event) {
 		ranked_choice_alternative_slider_drag_handle_key_down_event(event);
-	}).on('mousedown', 'li > ' + ranked_choice_data.selector('ALTERNATIVE_SLIDER_DRAG_HANDLE') + ', li > ' +
+	});
+
+	/*
+	.on('mousedown', 'li > ' + ranked_choice_data.selector('ALTERNATIVE_SLIDER_DRAG_HANDLE') + ', li > ' +
 			ranked_choice_data.selector('ALTERNATIVE_TRIANGLE'), function(event) {
  		ranked_choice_alternative_mouse_down_event(event);
-	}).on('click', 'li > ' + ranked_choice_data.selector('ALTERNATIVE_REMOVE_BUTTON'), function(event) {
-		ranked_choice_remove_alternative($(this).closest('li'));
 	});
+	*/
 }
 
 function ranked_choice_create_new(steps, update_slider_bar_function_callback) {
@@ -84,7 +88,7 @@ function ranked_choice_create_new(steps, update_slider_bar_function_callback) {
 	ranked_choice.append(ranked_choice_alternatives_list, ranked_choice_slider_bar);
 	ranked_choice_install_event_listeners(ranked_choice);
 
-	if (typeof(update_slider_bar_function_callback) !== 'undefined') {
+	if (typeof(update_slider_bar_function_callback) !== undefined) {
 		ranked_choice_set_slider_bar_update_function_callback(ranked_choice, update_slider_bar_function_callback);
 	} else {
 		ranked_choice_set_slider_bar_update_function_callback(ranked_choice, function(){});
@@ -100,8 +104,6 @@ function ranked_choice_update_slider_bar(ranked_choice) {
 		var slider_bar = ranked_choice_get_slider_bar(ranked_choice);
 		var alternatives_list = ranked_choice_get_alternatives_list(ranked_choice);
 
-		console.log(slider_bar + ", " + alternatives_list);
-
 		function_callback(slider_bar, alternatives_list);
 	}
 }
@@ -115,7 +117,7 @@ function ranked_choice_alternative_slider_drag_handle_key_down_event(event) {
 
 	if (event.keyCode == 37) {
 		if (ranked_choice_move_alternative(alternative, -1)) {
-			ranked_choice_update_slider_bar(alternative.closest(ranked_choice_data.selector('RANKED_CHOICE')));
+			ranked_choice_update_slider_bar(alternative.closest('.ranked-choice'));
 		}
 	} else if (event.keyCode == 39) {
 		if (ranked_choice_move_alternative(alternative, 1)) {
@@ -216,10 +218,9 @@ function ranked_choice_get_alternative_text(alternative) {
 }
 
 function ranked_choice_set_alternative_position(ranked_choice, alternative, position) {
-	console.log(position);
 	var alternative_offset = ((position-1) / (ranked_choice_get_slider_bar_steps(ranked_choice)-1)) * 100;
 
-	alternative.attr(ranked_choice_data.attribute('ALTERNATIVE_POSITION'), position);
+	alternative.attr('data-alternative-position', position);
 	alternative.css('left', Math.round(alternative_offset) + '%');
 }
 
@@ -272,11 +273,12 @@ function ranked_choice_get_alternatives(ranked_choice_element) {
 }
 
 function ranked_choice_update_alternatives_positions(ranked_choice) {
+	console.log("hej!");
 	var ranked_choice_alternatives_list = ranked_choice.children('.ranked-choice-alternatives-list');
 
 	ranked_choice_alternatives_list.children('li').each(function(index, alternative) {
-		var alternative_slider_drag_handle = $(alternative).find(ranked_choice_data.selector('ALTERNATIVE_SLIDER_DRAG_HANDLE'));
-		var alternative_polygon = $(alternative).find(ranked_choice_data.selector('ALTERNATIVE_POSITION'));
+		var alternative_slider_drag_handle = $(alternative).find('.ranked-choice-alternative-slider-drag-handle');
+		var alternative_polygon = $(alternative).find('.ranked-choice-alternative-polygon');
 		var alternative_slider_drag_handle_new_top_position = ranked_choice_alternatives_list.outerHeight(true) - $(alternative).position().top - alternative_slider_drag_handle.outerHeight();
 		var alternative_polygon_new_height = ranked_choice_alternatives_list.outerHeight(true) - $(alternative).position().top - $(alternative).outerHeight() - $(alternative_slider_drag_handle).outerHeight();
 
@@ -340,7 +342,9 @@ function ranked_choice_remove_alternative(alternative) {
 	if (alternative == null || $(alternative).parent(ranked_choice_data.selector('ALTERNATIVES_LIST')).length == 0) {
 		return false;
 	} else {
+		var ranked_choice = alternative.closest('.ranked-choice');
 		alternative.remove();
+		ranked_choice_update_alternatives_positions(ranked_choice);
 		return true;
 	}
 }

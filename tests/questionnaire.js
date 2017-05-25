@@ -23,7 +23,7 @@ if (RUN_QUESTIONNAIRE_CORE_TESTS == true) {
 	$(document).ready(function() {
 		init_test_setting();
 
-		QUnit.module('Questionnaire operations');
+		QUnit.module('Questionnaire core tests');
 
 		QUnit.test('Add question', function(assert) {
 			assert.expect(5);
@@ -193,16 +193,29 @@ if (RUN_QUESTIONNAIRE_CORE_TESTS == true) {
 
 		QUnit.module('Question types');
 
+		QUnit.test('Are question types single choice: radio buttons and multiple choice: checkboxes', function(assert) {
+			var single_choice_radio_buttons_question = questionnaire_add_question(questionnaire.question_types.single_choice_radio_buttons.name);
+			var multiple_choice_checkboxes_question = questionnaire_add_question(questionnaire.question_types.multiple_choice_checkboxes.name);
+
+			assert.expect(4);
+
+			assert.ok(single_choice_radio_buttons_question);
+			assert.ok(multiple_choice_checkboxes_question);
+
+			assert.strictEqual(questionnaire_are_questions_of_type_single_choice_radio_buttons_and_multiple_choice_checkboxes(single_choice_radio_buttons_question, multiple_choice_checkboxes_question), true);
+			assert.strictEqual(questionnaire_are_questions_of_type_single_choice_radio_buttons_and_multiple_choice_checkboxes(multiple_choice_checkboxes_question, single_choice_radio_buttons_question), true);
+		});
+
 		QUnit.test('Valid question types', function(assert) {
 			assert.expect(Object.keys(questionnaire.question_types).length);
 
-			assert.strictEqual(questionnaire_is_question_type_valid(questionnaire.question_types.short_answer), true);
-			assert.strictEqual(questionnaire_is_question_type_valid(questionnaire.question_types.paragraph), true);
-			assert.strictEqual(questionnaire_is_question_type_valid(questionnaire.question_types.single_choice_list), true);
-			assert.strictEqual(questionnaire_is_question_type_valid(questionnaire.question_types.single_choice_radio_buttons), true);
-			assert.strictEqual(questionnaire_is_question_type_valid(questionnaire.question_types.multiple_choice_list), true);
-			assert.strictEqual(questionnaire_is_question_type_valid(questionnaire.question_types.multiple_choice_checkboxes), true);
-			assert.strictEqual(questionnaire_is_question_type_valid(questionnaire.question_types.ranked_choice), true);
+			assert.strictEqual(questionnaire_is_question_type_valid(questionnaire.question_types.short_answer.name), true);
+			assert.strictEqual(questionnaire_is_question_type_valid(questionnaire.question_types.paragraph.name), true);
+			assert.strictEqual(questionnaire_is_question_type_valid(questionnaire.question_types.single_choice_list.name), true);
+			assert.strictEqual(questionnaire_is_question_type_valid(questionnaire.question_types.single_choice_radio_buttons.name), true);
+			assert.strictEqual(questionnaire_is_question_type_valid(questionnaire.question_types.multiple_choice_list.name), true);
+			assert.strictEqual(questionnaire_is_question_type_valid(questionnaire.question_types.multiple_choice_checkboxes.name), true);
+			assert.strictEqual(questionnaire_is_question_type_valid(questionnaire.question_types.ranked_choice.name), true);
 		});
 
 		QUnit.test('Invalid question types', function(assert) {
@@ -221,12 +234,12 @@ if (RUN_QUESTIONNAIRE_CORE_TESTS == true) {
 			assert.expect(2*Object.keys(questionnaire.question_types).length);
 
 			for (var question_type in questionnaire.question_types) {
-				var question = questionnaire_add_question(questionnaire.question_types[question_type]);
+				var question = questionnaire_add_question(questionnaire.question_types[question_type].name);
 
 				assert.ok(question);
 
 				// A change to the same question type should return 'false' and not change question markup
-				assert.strictEqual(questionnaire_change_question_type(question, questionnaire.question_types[question_type]), false);
+				assert.strictEqual(questionnaire_change_question_type(question, questionnaire.question_types[question_type].name), false);
 			}
 		});
 
@@ -405,6 +418,102 @@ if (RUN_QUESTIONNAIRE_CORE_TESTS == true) {
 		QUnit.test('Move last section down', function(assert) {
 			assert.expect(6 + 1);
 			assert.strictEqual(questionnaire_move_section(this.sections_array[this.sections_array.length-1]), false);
+		});
+
+		/*
+		QUnit.module('Single choice: radio buttons & multiple choice: checkboxes movement');
+
+		QUnit.test('Swap place: single choice: radio buttons & single choice: radio buttons', function(assert) {
+			var number_of_questions = 2;
+			var number_of_alternatives_per_question = 3;
+			var questions_array = new Array(number_of_questions);
+			var alternatives_array = new Array(number_of_questions);
+
+			assert.expect(3*(number_of_questions*number_of_alternatives_per_question) + 1);
+
+			for (var a = 0; a < number_of_questions; a++) {
+				questions_array[a] = questionnaire_add_question(questionnaire.question_types.single_choice_radio_buttons.name);
+				alternatives_array[a] = new Array(number_of_alternatives_per_question);
+
+				for (var b = 0; b < number_of_alternatives_per_question; b++) {
+					alternatives_array[a][b] = questionnaire_add_question_answer_alternative(questions_array[a], questionnaire.question_types.single_choice_radio_buttons.name);
+					assert.ok(alternatives_array[a][b]);
+
+					console.log(a + ':' + b);
+				}
+			}
+
+			$(questionnaire_get_question_answer_alternatives_list(questions_array[0])).each(function(index, alternative) {
+				assert.strictEqual(
+					$(alternative).children('input').attr('id'),
+					questionnaire_produce_single_multiple_choice_alternative_name(1, index+1)
+				);
+			});
+
+			$(questionnaire_get_question_answer_alternatives_list(questions_array[1])).each(function(index, alternative) {
+				assert.strictEqual(
+					$(alternative).children('input').attr('id'),
+					questionnaire_produce_single_multiple_choice_alternative_name(2, index+1)
+				);
+			});
+debugger;
+
+			var move_operation = questionnaire_move_section(questions_array[0], 1);
+			assert.strictEqual(move_operation, true);
+
+			$(alternatives_array[0]).each(function(index, alternative) {
+				assert.strictEqual(
+					$(alternative).children('input').attr('id'),
+					questionnaire_produce_single_multiple_choice_alternative_name(2, index+1)
+				);
+			});
+
+			$(alternatives_array[1]).each(function(index, alternative) {
+				assert.strictEqual(
+					$(alternative).children('input').attr('id'),
+					questionnaire_produce_single_multiple_choice_alternative_name(1, index+1)
+				);
+			});
+		});
+		*/
+
+		QUnit.module('Question number');
+
+		QUnit.test('Only questions', function(assert) {
+			var added_questions = [
+				questionnaire_add_question(),
+				questionnaire_add_question(),
+				questionnaire_add_question()
+			];
+
+			assert.expect(2*added_questions.length);
+
+			for (var i = 0; i < added_questions.length; i++) {
+				assert.ok(added_questions[i]);
+				assert.strictEqual(questionnaire_get_question_number(added_questions[i]), i + 1);
+			}
+		});
+
+		QUnit.test('Interleaved questions and heading-and-descriptions', function(assert) {
+			var added_sections = [
+				questionnaire_add_heading_and_description(),
+				questionnaire_add_question(),
+				questionnaire_add_heading_and_description(),
+				questionnaire_add_question(),
+				questionnaire_add_heading_and_description(),
+				questionnaire_add_question(),
+				questionnaire_add_heading_and_description()
+			];
+
+			assert.expect(added_sections.length + 3);
+
+			for (var i = 0; i < added_sections.length; i++) {
+				assert.ok(added_sections[i]);
+			}
+
+			assert.strictEqual(questionnaire_get_question_number(added_sections[2]), 1);
+			assert.strictEqual(questionnaire_get_question_number(added_sections[4]), 2);
+			assert.strictEqual(questionnaire_get_question_number(added_sections[6]), 3);
 		});
 	});
 }

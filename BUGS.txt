@@ -1,0 +1,22 @@
+BUGGAR:
+
+1. I Internet Explorer hamnar toolbaren för långt åt vänster, så att man knappt kan nå knapparna för att lägga till ny fråga m.m.
+2. När man duplicerar en fråga och byter frågetyp går inte detta.
+3. I Firefox, när man lägger till en ny radio button/checkbox och texten blir markerad, kan man inte börja skriva direkt för att
+	ersätta texten.
+4. Det går inte att ta bort checkboxes/radio buttons.
+5. Tooltips går inte bort med radio-buttons.
+6. Länk-context-menyn dyker upp när man klickar på en länk i valtyp-menyn.
+
+CSS-PROBLEM:
+1. Om man lägger till två frågor till ett helt nytt formulär, så göms "Byt frågetyp"-menyn under den fråga 2 om man öppnar
+	den från fråga 1.
+2. När man lägger till ny radio button/checkbox, så ligger sakerna för nära varandra.
+	Snygga till varje rad med radio buttons/checkboxes.
+
+
+
+TODO:
+Kunna ändra platshållar-text på plats i själva textrutan.
+När man klickar i "Obligatorisk fråga" ska man inte hamna längst upp i dokumentet.
+Listrute-ikonen måste fixas.

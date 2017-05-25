@@ -10,18 +10,22 @@
 		<link rel="stylesheet" type="text/css" href="ranked-choice/ranked-choice.css">
 		<link rel="stylesheet" type="text/css" href="select-list/select-list.css">
 		<link rel="stylesheet" type="text/css" href="https://code.jquery.com/qunit/qunit-2.3.0.css">
+		<link rel="stylesheet" type="text/css" href="font-awesome-4.7.0/css/font-awesome.min.css">
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="lib/rangy-1.3.0/lib/rangy-core.js"></script>
 		<!-- <script src="shared/shiny.js"></script> -->
 		<script src="https://code.jquery.com/qunit/qunit-2.3.0.js"></script>
+		<script src="lib/blanket-1.2.2/blanket-1.2.2.min.js"></script>
 		<script src="select-list/select-list.js"></script>
 		<script src="ranked-choice/ranked-choice.js"></script>
-		<script src="js/questionnaire.js"></script>
+		<script src="js/questionnaire.js" data-cover></script>
 		<script src="js/questionnaire-preview.js"></script>
 		<script src="js/questionnaire-validation.js"></script>
 		<script src="tests/questionnaire.js"></script>
 		<script src="tests/questionnaire-preview.js"></script>
+		<script src="tests/questionnaire-validation.js"></script>
 	</head>
 
 <body>
@@ -57,12 +61,20 @@
 					<button type="button" class="questionnaire-add-image-button btn btn-default" title="Lägg till bild">
 						<span class="glyphicon glyphicon-picture"></span>
 					</button>
-					<button type="button" class="questionnaire-add-hyperlink-button btn btn-default" title="Lägg till hyperlänk">
+					<button type="button" class="questionnaire-add-hyperlink-button btn btn-default" title="Lägg till/redigera hyperlänk">
 						<span class="glyphicon glyphicon-link"></span>
 					</button>
-					<button type="button" class="questionnaire-add-email-link-button btn btn-default" title="Lägg till email-länk">
+					<button type="button" class="questionnaire-add-email-link-button btn btn-default" title="Lägg till/redigera email-länk">
 						<span class="glyphicon glyphicon-envelope"></span>
 					</button>
+					<!--
+					<button type="button" class="questionnaire-undo-button btn btn-default" title="Ångra">
+						<span class="fa fa-undo"></span>
+					</button>
+					<button type="button" class="questionnaire-redo-button btn btn-default" title="Gör om">
+						<span class="fa fa-repeat"></span>
+					</button>
+					-->
 					<div style="margin: 1em 0"></div>
 					<button type="button" class="questionnaire-preview-questionnaire-button btn btn-default" title="Förhandsgranska formulär">
 						<span class="glyphicon glyphicon-eye-open"></span>
@@ -85,7 +97,6 @@
 					<header>
 						<h1 class="questionnaire-title" contenteditable="true" spellcheck="false">Namnlöst formulär</h1><hr>
 						<p class="lead questionnaire-description" contenteditable="true" spellcheck="false">Beskrivning av formulär</p>
-						<p contenteditable="true"><a href="hehe.html">Testar lite</a></p>
 					</header>
 					<footer style="display: none">
 						<button id="questionnaire-submit-button" type="button" class="btn btn-primary btn-lg btn-block">Skicka in svar</button>
@@ -93,9 +104,43 @@
 				</div>
 			</div>
 			<!-- QUESTIONNAIRE DIV END -->
-
 		</div>
 		<!-- ROW ONE END -->
+		<footer id="questionnaire-context-toolbar">
+			<div id="questionnaire-context-toolbar-link-pane">
+				<form>
+					<label>länk-text:&nbsp;<input id="link-pane-link-text" type="text"></label>
+					<label>länk-adress:&nbsp;<input id="link-pane-link-url" type="text"></label>
+				</form>
+			</div>
+			<div id="questionnaire-context-toolbar-text-input-pane">
+				<form>
+					<label for="text-input-pane-placeholder-text">placeholder-text:</label>
+					<input id="text-input-pane-placeholder-text" type="text">
+					<button id="text-input-pane-placeholder-text-reset-button" type="button">Återställ</button>
+				</form>
+			</div>
+			<div id="questionnaire-context-toolbar-image-pane">
+				<form>
+					<label for="image-pane-image-url">Bild-adress:</label>
+					<input id="image-pane-image-url" type="text">
+
+				Position:
+				<div id="image-pane-image-position-button-group" class="btn-group position-button-group" role="group" aria-label="...">
+					<button type="button" class="btn btn-default btn-primary">
+						<span class="glyphicon glyphicon-align-left"></span>
+					</button>
+					<button type="button" class="btn btn-default">
+						<span class="glyphicon glyphicon-align-center"></span>
+					</button>
+					<button type="button" class="btn btn-default">
+						<span class="glyphicon glyphicon-align-right"></span>
+					</button>
+				</div>
+				</form>
+			</div>
+
+		</footer>
 	</div>
 	<!-- MAIN CONTAINER END -->
 
@@ -117,7 +162,7 @@
 	<!-- QUESTION DIV BEGIN -->
 	<div class="panel panel-default question" data-current-question-type="none" style="display: none">
 		<div class="panel-heading">
-			<h3 class="panel-title" contenteditable="true" spellcheck="false" style="display: inline">Rubrik</h3>
+			<h3 class="panel-title" contenteditable="true" spellcheck="false" style="display: inline">Frågerubrik</h3>
 			<div class="btn-group pull-right questionnaire-question-types-dropdown">
 				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Frågetyp&nbsp;<span class="caret"></span></button>
 				<ul class="dropdown-menu questionnaire-question-types-list">
@@ -199,7 +244,7 @@
 
 		<!-- Paragraph -->
 		<div class="question-type-paragraph">
-			<textarea class="form-control" spellcheck="true" placeholder="Lång svarstext" rows="3"></textarea>
+			<textarea class="form-control question-paragraph-text" spellcheck="true" placeholder="Lång svarstext" rows="3"></textarea>
 		</div>
 
 		<!-- Single choice: radio buttons -->
@@ -207,12 +252,7 @@
 			<ul class="question-answer-alternatives">
 				<li>
 					<input type="radio" disabled>
-					<label class="lbl-answer-alternative-text" contenteditable="true" spellcheck="false">Alternativ</label>
-					<span class="single-choice-remove-alternative-button" data-toggle="tooltip" title="Ta bort alternativ">&times;</span><br>
-				</li>
-				<li class="add-answer-alternative">
-					<input type="radio" disabled>
-					<label class="lbl-add-answer-alternative">Lägg till alternativ</label>
+					<label class="single-choice-add-alternative">Lägg till alternativ</label>
 				</li>
 			</ul>
 		</div>
@@ -226,12 +266,7 @@
 		<ul class="question-answer-alternatives">
 			<li>
 				<input type="checkbox" disabled>
-				<label class="lbl-answer-alternative-text" contenteditable="true" spellcheck="false">Alternativ</label>
-				<span class="multiple-choice-remove-alternative-button" data-toggle="tooltip" title="Ta bort alternativ">&times;</span><br>
-			</li>
-			<li class="add-answer-alternative">
-				<input type="checkbox" disabled>
-				<label class="lbl-add-answer-alternative">Lägg till alternativ</label>
+				<label class="multiple-choice-add-alternative">Lägg till alternativ</label>
 			</li>
 		</ul>
 		</div>
@@ -284,8 +319,8 @@
 	</div>
 	</div>
 
-	<!-- Add hyperlink/email-link modal -->
-	<div id="questionnaire-add-link-modal-dialog" class="modal fade" tabindex="-1" role="dialog">
+	<!-- Add hyperlink modal -->
+	<div id="questionnaire-add-hyperlink-modal-dialog" class="modal fade" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-sm" role="document">
 	<div class="modal-content">
 	<div class="modal-header">
@@ -312,6 +347,102 @@
 	</div>
 	</div>
 
+	<!-- Add email link modal -->
+	<div id="questionnaire-add-email-link-modal-dialog" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+	<div class="modal-content">
+	<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">Infoga email-länk</h4>
+	</div>
+	<div class="modal-body">
+		<form>
+			<div class="form-group">
+				<label for="txt-link-text">Länktext:</label>
+				<input id="txt-link-text" type="text" class="form-control">
+			</div>
+			<div class="form-group">
+				<label class="lbl-link-address" for="txt-link-address">Länkadress:</label>
+				<input id="txt-link-address" type="text" class="form-control" placeholder="john.doe@example.com" value="john.doe@example.com">
+			</div>
+			<div style="text-align: right">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
+				<button type="submit" data-dismiss="modal" class="btn btn-primary">Lägg till</button>
+			</div>
+		</form>
+	</div>
+	</div>
+	</div>
+	</div>
+
+	<!-- Submitted questionnaire modal -->
+	<div id="questionnaire-questionnaire-submitted-modal-dialog" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+	<div class="modal-content">
+	<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">Färdigt</h4>
+	</div>
+	<div class="modal-body">
+	<p>Tack för din medverkan!</p>
+	</div>
+	<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">Stäng</button>
+	</div>
+	</div>
+	</div>
+	</div>
+
+	<!-- Save questionnaire modal -->
+	<div id="questionnaire-save-modal-dialog" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+	<div class="modal-content">
+	<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">Spara formulär</h4>
+	</div>
+	<div class="modal-body">
+		<form>
+		<div class="form-group">
+		<label for="txt-questionnaire-name">Formulärnamn:</label>
+		<input id="txt-questionnaire-name" type="text" class="form-control">
+		</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
+	<button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Spara</button>
+	</div>
+	</div>
+	</div>
+	</div>
+
+	<!-- Load questionnaire modal -->
+	<div id="questionnaire-load-modal-dialog" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+	<div class="modal-content">
+	<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">Ladda formulär</h4>
+	</div>
+	<div class="modal-body">
+		<form>
+		<div class="form-group">
+		<label>Välj formulär:</label><br>
+		<select id="questionnaire-load-modal-dialog-questionnaires-list">
+		</select>
+		<button type="button" class="btn btn-default questionnaire-load-modal-dialog-remove-questionnaire-button">Ta bort</button>
+		</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
+	<button type="button" class="btn btn-default btn-primary" data-dismiss="modal">Ladda</button>
+	</div>
+	</div>
+	</div>
+	</div>
+
 	<!-- Clear questionnaire modal -->
 	<div id="questionnaire-clear-questionnaire-modal-dialog" class="modal fade" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-sm" role="document">
@@ -326,23 +457,6 @@
 	<div class="modal-footer">
 	<button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
 	<button type="button" class="btn btn-danger" data-dismiss="modal">Rensa</button>
-	</div>
-	</div>
-	</div>
-	</div>
-
-	<div id="questionnaire-questionnaire-submitted-modal-dialog" class="modal fade" tabindex="-1" role="dialog">
-	<div class="modal-dialog modal-sm" role="document">
-	<div class="modal-content">
-	<div class="modal-header">
-	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-	<h4 class="modal-title">Färdigt</h4>
-	</div>
-	<div class="modal-body">
-	<p>Tack för din medverkan!</p>
-	</div>
-	<div class="modal-footer">
-	<button type="button" class="btn btn-default" data-dismiss="modal">Stäng</button>
 	</div>
 	</div>
 	</div>

@@ -12,35 +12,64 @@ var questionnaire_preview_data = {
 
 function questionnaire_preview_questionnaire(preview_mode_enabled) {
 	if (preview_mode_enabled === true) {
+		// Remove possible selection made from adding new radio button or checkbox
+		window.getSelection().removeAllRanges();
+
 		$(questionnaire.title.selector).attr('contenteditable', 'false');
 		$(questionnaire.description.selector).attr('contenteditable', 'false');
 		$('#questionnaire > .question > .panel-body > .question-description').attr('contenteditable', 'false');
 		$('#questionnaire > footer').css('display', 'block');
+		$('#questionnaire-context-toolbar').css('display', 'none');
 
-		$('.questionnaire-operations-toolbar > button[class*="' + questionnaire_preview_data.classnames.preview_questionnaire_button + '"]').addClass('active').attr('data-original-title', 'Sluta förhandsgranska formulär').tooltip('show');
+		$('.questionnaire-operations-toolbar > button[class*="' + questionnaire_preview_data.classnames.preview_questionnaire_button + '"]')
+			.addClass('active').attr('data-original-title', questionnaire.operations_toolbar.preview_button.preview_mode_enabled_tooltip_text).tooltip('show');
+
 		$('.questionnaire-operations-toolbar > button[class*="' + questionnaire_preview_data.classnames.preview_questionnaire_button + '"] > span[class*="' + questionnaire_preview_data.classnames.preview_mode_disabled_icon + '"]').removeClass(questionnaire_preview_data.classnames.preview_mode_disabled_icon).addClass(questionnaire_preview_data.classnames.preview_mode_enabled_icon);
 		$('.questionnaire-operations-toolbar > button:not([class*="' + questionnaire_preview_data.classnames.preview_questionnaire_button + '"])').addClass('disabled').prop('disabled', true);
 
-		$('#questionnaire > .panel > .panel-heading > .questionnaire-question-type-dropdown').css('display', 'none');
+		$('#questionnaire > .panel > .panel-heading > .questionnaire-question-types-dropdown').css('display', 'none');
 		$('#questionnaire > .panel > .panel-heading > .panel-title').attr('contenteditable', 'false');
 		$('#questionnaire > .panel > .panel-footer').css('display', 'none');
+
+		questionnaire_set_links_click_behaviour(true);
+
 	} else {
 		$(questionnaire.title.selector).attr('contenteditable', 'true');
 		$(questionnaire.description.selector).attr('contenteditable', 'true');
 		$('#questionnaire > .question > .panel-body > .question-description').attr('contenteditable', 'true');
 		$('#questionnaire > footer').css('display', 'none');
+		$('#questionnaire-context-toolbar').css('display', 'block');
 
-		$('.questionnaire-operations-toolbar > button[class*="' + questionnaire_preview_data.classnames.preview_questionnaire_button + '"]').removeClass('active').attr('data-original-title', 'Förhandsgrandska formulär').tooltip('show');
+		$('.questionnaire-operations-toolbar > button[class*="' + questionnaire_preview_data.classnames.preview_questionnaire_button + '"]')
+			.removeClass('active').attr('data-original-title', questionnaire.operations_toolbar.preview_button.preview_mode_disabled_tooltip_text).tooltip('show');
+
 		$('.questionnaire-operations-toolbar > button[class*="' + questionnaire_preview_data.classnames.preview_questionnaire_button + '"] > span[class*="' + questionnaire_preview_data.classnames.preview_mode_enabled_icon + '"]').removeClass(questionnaire_preview_data.classnames.preview_mode_enabled_icon).addClass(questionnaire_preview_data.classnames.preview_mode_disabled_icon);
 		$('.questionnaire-operations-toolbar > button:not([class*="' + questionnaire_preview_data.classnames.preview_questionnaire_button + '"])').removeClass('disabled').prop('disabled', false);
 
-		$('#questionnaire > .panel > .panel-heading > .questionnaire-question-type-dropdown').css('display', 'inline');
+		$('#questionnaire > .panel > .panel-heading > .questionnaire-question-types-dropdown').css('display', 'inline');
 		$('#questionnaire > .panel > .panel-heading > .panel-title').attr('contenteditable', 'true');
 		$('#questionnaire > .panel > .panel-footer').css('display', 'block');
+
+		questionnaire_set_links_click_behaviour(false);
 	}
 
 	questionnaire_preview_sections(preview_mode_enabled);
 	return true;
+}
+
+function questionnaire_produce_single_multiple_choice_alternative_name(question_number, alternative_number) {
+	if (question_number == undefined) {
+		return '';
+	} else {
+		var prefix = 'question_';
+		var suffix = '_alt_';
+
+		if (alternative_number == undefined) {
+			return prefix + question_number;
+		} else {
+			return prefix + question_number + suffix + alternative_number;
+		}
+	}
 }
 
 function questionnaire_preview_sections(preview_mode_enabled) {
@@ -77,6 +106,48 @@ function questionnaire_preview_paragraph(preview_mode_enabled, question_index, q
 
 // Preview routine for single-choice-radion-buttons and multiple-choice-checkboxes
 function questionnaire_preview_single_and_multiple_choice(preview_mode_enabled, question_index, question_type_div) {
+
+	function iterate_over_alternatives(remove_alternative_button_display_mode,
+									alternative_label_content_editable,
+									choice_input_disabled,
+									choice_input_selected,
+									add_new_choice_display_mode,
+									question_type)
+	{
+		$(question_type_div).children('.question-answer-alternatives').children('li').each(function(index, choice) {
+			$(choice).children('span[class*="choice-remove-alternative-button"]').css('display', remove_alternative_button_display_mode);
+
+			if (question_type === questionnaire.question_types.single_choice_radio_buttons.name) {
+				$(choice).children('input[type="radio"]').attr({
+					'id': questionnaire_produce_single_multiple_choice_alternative_name(question_index + 1, index + 1),
+					'name': questionnaire_produce_single_multiple_choice_alternative_name(question_index + 1)
+				});
+			}
+
+			$(choice).children('label').attr({
+				'contenteditable': alternative_label_content_editable,
+				'for': preview_mode_enabled === true ? $(choice).children('input').attr('id') : ''
+			});
+
+			$(choice).children('input[type="radio"], input[type="checkbox"]').prop({
+				'disabled': choice_input_disabled,
+				'checked': choice_input_selected
+			});
+
+			if ($(choice).next('li').length === 0) {
+				// Last item - hide it
+				$(choice).css('display', add_new_choice_display_mode);
+			}
+		});
+	}
+
+	if (preview_mode_enabled === true) {
+		iterate_over_alternatives('none', 'false', false, false, 'none', questionnaire_get_question_type(question_type_div));
+	} else {
+		iterate_over_alternatives('inline', 'true', true, false, 'block', questionnaire_get_question_type(question_type_div));
+	}
+
+	/*
 	if (preview_mode_enabled === true) {
 		$(question_type_div).children('.question-answer-alternatives').children('li')
 			.children('span[class*="choice-remove-alternative-button"]').css('display', 'none');
@@ -86,6 +157,7 @@ function questionnaire_preview_single_and_multiple_choice(preview_mode_enabled, 
 			.children('span[class*="choice-remove-alternative-button"]').css('display', 'inline');
 		$(question_type_div).children('.question-answer-alternatives').children('li:last-child').css('display', 'block');
 	}
+	*/
 }
 
 function questionnaire_preview_single_choice_radio_buttons(preview_mode_enabled, question_index, question_type_div) {

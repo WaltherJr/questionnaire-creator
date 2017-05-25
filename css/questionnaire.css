@@ -1,6 +1,27 @@
 body {
 	background-color: #eee;
 	overflow-x: hidden;
+	margin-bottom: 20%;
+	padding: 0;
+}
+
+#questionnaire img {
+	position: relative;
+}
+
+#questionnaire-context-toolbar {
+	width: 100%;
+	background-color: rgba(210,210,210,.7);
+	position: fixed;
+	bottom: 0px;
+	min-height: 0%;
+	z-index: 100;
+	padding: 20px 0;
+}
+
+#questionnaire-context-toolbar > div {
+	margin: 0 auto;
+	width: 50%;
 }
 
 body > div[class*='question-type'], body > .heading-and-description, body > .question {
@@ -9,6 +30,15 @@ body > div[class*='question-type'], body > .heading-and-description, body > .que
 	padding: 0;
 	border: none;
 	overflow: hidden;
+}
+
+/* Should be possible only to resize textarea vertically */
+textarea {
+	resize: vertical;
+}
+
+img {
+	/* cursor: move; */
 }
 
 #questionnaire {
@@ -24,7 +54,7 @@ body > div[class*='question-type'], body > .heading-and-description, body > .que
 	padding-bottom: 40px;
 	margin: 0 !important;
 	position: relative;
-	z-index: 100;
+	z-index: 1;
 }
 
 .questionnaire-operations-toolbar {
@@ -73,7 +103,7 @@ ul.question-answer-alternatives > li {
 	text-align: center;
 }
 
-.single-choice-remove-alternative-button {
+.single-choice-remove-alternative-button, .multiple-choice-remove-alternative-button {
 	font-weight: bold;
 	font-size: 1.4em;
 	cursor: pointer;
@@ -90,21 +120,29 @@ ul {
 	list-style-type: none;
 }
 
-.add-answer-alternative {
-	color: #aaa;
+.question .dropdown-menu {
+	position: absolute !important;
+	border: 1px solid red;
+	z-index: 300 !important;
 }
 
-.questionnaire-question-type-menu {
-	position: absolute;
-	z-index: 10000 !important;
+.questionnaire-question-types-list {
+	position: absolute !important;
+	z-index: 1 !important;
+	border: 1px solid red;
 }
 
 .panel-footer {
 	padding: 0 !important;
 }
 
-.single-choice-remove-alternative-button {
-	margin-left: 10px;
+label {
+	font-weight: normal;
+}
+
+.single-choice-add-alternative, .multiple-choice-add-alternative {
+	cursor: text;
+	color: gray;
 }
 
 #questionnaire > .panel {
@@ -114,7 +152,12 @@ ul {
 	margin-bottom: 40px;
 	overflow: visible;
 	background-color: white;
-	transition: top 1s, margin-top 1s, opacity 1.5s;
+}
+
+label[for="text-input-pane-placeholder-text"],
+label[for="image-pane-image-url"],
+.ranked-choice-type-select-list-text {
+	cursor: help;
 }
 
 .modal-dialog {
@@ -182,4 +225,21 @@ ul {
 	border-top-right-radius: 5px;
 	border-bottom-right-radius: 5px;
 	border: 1px solid gray;
+}
+
+.ranked-choice-type-definition-list > dt {
+	margin-top: 10px;
+}
+
+/* CSS animation transitions */
+.animate-top {
+	transition: top 1s;
+}
+
+.animate-margin-top {
+	transition: margin-top 1s;
+}
+
+.animate-margin-bottom {
+	transition: margin-bottom 1s;
 }
