@@ -1,39 +1,30 @@
 "use strict";
 
-/* General preview routines for questionnaire creator */
-
-/*
-	if (questionnaire_validated == false) {
-		$('html, body').animate({scrollTop: $(mandatory_checkboxes.first().closest('.question')).offset().top}, 700);
-	} else {
-		$('#modal-questionnaire-submitted').modal();
-	}
-}
-*/
-
-function questionnaire_validate_questionnaire() {
+function questionnaire_validate() {
 	var mandatory_questions = questionnaire_get_mandatory_questions();
+	var invalid_questions = [];
 
-	// Assume an correctly filled-in questionnaire
-	var questionnaire_valid = true;
-
-	$(mandatory_questions).each(function(index, mandatory_question) {
-		console.log(mandatory_question);
-
+	mandatory_questions.each(function(index, mandatory_question) {
 		if (questionnaire_validate_question(mandatory_question) === false) {
-			// At least one mandatory question not answered correctly => invalid questionnaire
-			questionnaire_valid = false;
+			// Question answer is invalid
+			$(mandatory_question).addClass(questionnaire.question.invalid_question.classname);
+			$(mandatory_question).find('.question-type-validation-field').popover('show');
+
+			invalid_questions.push(mandatory_question);
+		} else {
+			// Question answer is valid
+			$(mandatory_question).removeClass(questionnaire.question.invalid_question.classname);
+			$(mandatory_question).find('.question-type-validation-field').popover('hide');
 		}
 	});
 
-	return questionnaire_valid;
+	return $(invalid_questions);
 }
 
-function questionnaire_remove_all_question_validation_errors() {
-	var mandatory_checkboxes = questionnaire_get_questions().find('.questionnaire-mandatory-question-label > input[type="checkbox"]:checked');
-
-	$(mandatory_checkboxes).each(function(index, element) {
-		$(element).closest('div.question').children('.panel-heading').children('.panel-title').popover('destroy');
+function questionnaire_remove_mandatory_questions_invalid_class() {
+	questionnaire_get_mandatory_questions().each(function(index, mandatory_question) {
+		$(mandatory_question).removeClass(questionnaire.question.invalid_question.classname);
+		$(mandatory_question).find('.question-type-validation-field').popover('hide');
 	});
 }
 
@@ -98,10 +89,8 @@ function questionnaire_validate_short_answer_question(question_div) {
 	var short_answer_div = $(question_div).find('input.question-short-answer-text');
 
 	if (short_answer_div.val() != '') {
-		questionnaire_hide_question_validation_error(question_div);
 		return true;
 	} else {
-		questionnaire_display_question_validation_error(question_div);
 		return false;
 	}
 }
@@ -126,26 +115,14 @@ function questionnaire_validate_question(question_div) {
 	var question_type = questionnaire_get_question_type(question_div);
 	var transformed_question_type_string = question_type.replace(/-/g, '_');
 
-	return questionnaire.question_types[transformed_question_type_string].validation(question_div);
+	var validation_result = questionnaire.question_types[transformed_question_type_string].validation(question_div);
 
-	/*
-	if (question_type == 'short-answer') {
-		return questionnaire_validate_short_answer_question(question_div);
+	return validation_result;
+}
 
-	} else if (question_type == 'paragraph') {
-		return questionnaire_validate_paragraph_question(question_div);
+function questionnaire_clear_question_validation_error(question_div) {
+	var question_type = questionnaire_get_question_type(question_div);
+	var transformed_question_type_string = question_type.replace(/-/g, '_');
 
-	} else if (question_type == 'single-choice-radio-buttons') {
-		return questionnaire_validate_single_choice_radio_buttons_question(question_div);
-
-	} else if (question_type == 'single-choice-list') {
-		return questionnaire_validate_single_choice_list_question(question_div);
-
-	} else if (question_type == 'multiple-choice-checkboxes') {
-		return questionnaire_validate_multiple_choice_checkboxes_question(question_div);
-
-	} else if (question_type == 'multiple-choice-list') {
-		return questionnaire_validate_multiple_choice_list_question(question_div);
-	}
-	*/
+	questionnaire.question_types[transformed_question_type_string].clear_validation_error(question_div);
 }

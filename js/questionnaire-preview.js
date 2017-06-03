@@ -50,6 +50,7 @@ function questionnaire_preview_questionnaire(preview_mode_enabled) {
 		$('#questionnaire > .panel > .panel-heading > .panel-title').attr('contenteditable', 'true');
 		$('#questionnaire > .panel > .panel-footer').css('display', 'block');
 
+		questionnaire_remove_mandatory_questions_invalid_class();
 		questionnaire_set_links_click_behaviour(false);
 	}
 
@@ -84,15 +85,15 @@ function questionnaire_preview_sections(preview_mode_enabled) {
 	questionnaire_preview_question(preview_mode_enabled, 'ranked-choice', questionnaire_preview_ranked_choice);
 }
 
-function questionnaire_preview_heading_and_description(preview_mode_enabled) {
-	$('#questionnaire > .heading-and-description > .panel-body > .heading-and-description-description').attr('contenteditable', preview_mode_enabled === true ? 'false': 'true');
-}
-
 function questionnaire_preview_question(preview_mode_enabled, question_type, question_type_preview_function) {
 	$('#questionnaire > .question[data-current-question-type="' + question_type + '"] > .panel-body > div[class*="question-type"]')
 	.each(function(question_index, question_type_div) {
-		question_type_preview_function(preview_mode_enabled, question_index, question_type_div);
+		question_type_preview_function(preview_mode_enabled, questionnaire_get_question_number($(question_type_div).closest('.question')), question_type_div);
 	});
+}
+
+function questionnaire_preview_heading_and_description(preview_mode_enabled) {
+	$('#questionnaire > .heading-and-description > .panel-body > .heading-and-description-description').attr('contenteditable', preview_mode_enabled === true ? 'false': 'true');
 }
 
 /* Individual question type specific preview routines */
@@ -114,29 +115,34 @@ function questionnaire_preview_single_and_multiple_choice(preview_mode_enabled, 
 									add_new_choice_display_mode,
 									question_type)
 	{
+
 		$(question_type_div).children('.question-answer-alternatives').children('li').each(function(index, choice) {
-			$(choice).children('span[class*="choice-remove-alternative-button"]').css('display', remove_alternative_button_display_mode);
+			$(choice).children('*[class*="choice-remove-alternative-button"]').css('display', remove_alternative_button_display_mode);
 
 			if (question_type === questionnaire.question_types.single_choice_radio_buttons.name) {
 				$(choice).children('input[type="radio"]').attr({
-					'id': questionnaire_produce_single_multiple_choice_alternative_name(question_index + 1, index + 1),
-					'name': questionnaire_produce_single_multiple_choice_alternative_name(question_index + 1)
+					'id': questionnaire_produce_single_multiple_choice_alternative_name(question_index, index + 1),
+					'name': questionnaire_produce_single_multiple_choice_alternative_name(question_index)
+				});
+			} else if (question_type === questionnaire.question_types.multiple_choice_checkboxes.name) {
+				$(choice).children('input[type="checkbox"]').attr({
+					'id': questionnaire_produce_single_multiple_choice_alternative_name(question_index, index + 1),
 				});
 			}
-
-			$(choice).children('label').attr({
-				'contenteditable': alternative_label_content_editable,
-				'for': preview_mode_enabled === true ? $(choice).children('input').attr('id') : ''
-			});
-
-			$(choice).children('input[type="radio"], input[type="checkbox"]').prop({
-				'disabled': choice_input_disabled,
-				'checked': choice_input_selected
-			});
 
 			if ($(choice).next('li').length === 0) {
 				// Last item - hide it
 				$(choice).css('display', add_new_choice_display_mode);
+			} else {
+				$(choice).children('label').attr({
+					'contenteditable': alternative_label_content_editable,
+					'for': preview_mode_enabled === true ? $(choice).children('input').attr('id') : ''
+				});
+
+				$(choice).children('input[type="radio"], input[type="checkbox"]').prop({
+					'disabled': choice_input_disabled,
+					'checked': choice_input_selected
+				});
 			}
 		});
 	}
@@ -144,20 +150,16 @@ function questionnaire_preview_single_and_multiple_choice(preview_mode_enabled, 
 	if (preview_mode_enabled === true) {
 		iterate_over_alternatives('none', 'false', false, false, 'none', questionnaire_get_question_type(question_type_div));
 	} else {
-		iterate_over_alternatives('inline', 'true', true, false, 'block', questionnaire_get_question_type(question_type_div));
+		iterate_over_alternatives('', 'true', true, false, 'block', questionnaire_get_question_type(question_type_div));
 	}
 
-	/*
 	if (preview_mode_enabled === true) {
-		$(question_type_div).children('.question-answer-alternatives').children('li')
-			.children('span[class*="choice-remove-alternative-button"]').css('display', 'none');
+		$(question_type_div).children('.question-answer-alternatives').children('li').children('*[class*="choice-remove-alternative-button"]').css('display', 'none');
 		$(question_type_div).children('.question-answer-alternatives').children('li:last-child').css('display', 'none');
 	} else {
-		$(question_type_div).children('.question-answer-alternatives').children('li')
-			.children('span[class*="choice-remove-alternative-button"]').css('display', 'inline');
-		$(question_type_div).children('.question-answer-alternatives').children('li:last-child').css('display', 'block');
+		$(question_type_div).children('.question-answer-alternatives').children('li').children('*[class*="choice-remove-alternative-button"]').css('display', '');
+		$(question_type_div).children('.question-answer-alternatives').children('li:last-child').css('display', '');
 	}
-	*/
 }
 
 function questionnaire_preview_single_choice_radio_buttons(preview_mode_enabled, question_index, question_type_div) {
@@ -179,15 +181,30 @@ function questionnaire_preview_multiple_choice_list(preview_mode_enabled, questi
 function questionnaire_preview_ranked_choice(preview_mode_enabled, question_index, question_type_div) {
 	if (preview_mode_enabled === true) {
 		$(question_type_div).children('.ranked-choice-scale-text-list').children('li').children('span').attr('contenteditable', 'false');
-		$(question_type_div).children('.ranked-choice-add-alternative-button').css('display', 'none');
+		$(question_type_div).children('.ranked-choice-add-alternative').css('display', 'none');
 		$(question_type_div).children('.ranked-choice-alternatives-list').children('li').children('.ranked-choice-alternative-remove-button').css('display', 'none');
-		$(question_type_div).children('.ranked-choice-order-description').css('display', 'block');
+		$(question_type_div).children('.ranked-choice-order-description').css('display', '');
 		$(question_type_div).children('.ranked-choice-type-select-list-label').css('display', 'none');
+
+		$(question_type_div).find('.ranked-choice-alternative-text').attr('contenteditable', 'false');
+		$(question_type_div).find('.ranked-choice-alternative-remove-button').css('display', 'none');
 	} else {
 		$(question_type_div).children('.ranked-choice-scale-text-list').children('li').children('span').attr('contenteditable', 'true');
-		$(question_type_div).children('.ranked-choice-add-alternative-button').css('display', 'inline');
-		$(question_type_div).children('.ranked-choice-alternatives-list').children('li').children('.ranked-choice-alternative-remove-button').css('display', 'inline');
+		$(question_type_div).children('.ranked-choice-alternatives-list').children('li').children('.ranked-choice-alternative-remove-button').css('display', '');
 		$(question_type_div).children('.ranked-choice-order-description').css('display', 'none');
-		$(question_type_div).children('.ranked-choice-type-select-list-label').css('display', 'inline');
+		$(question_type_div).children('.ranked-choice-type-select-list-label').css('display', '');
+
+		$(question_type_div).find('.ranked-choice-alternative-text:not([data-editable="false"])').attr('contenteditable', 'true');
+		$(question_type_div).find('.ranked-choice-alternative-remove-button').css('display', '');
+
+		var a = $(question_type_div).find('.ranked-choice');
+		var b = questionnaire_get_ranked_choice_type_from_ranked_choice_ctrl(a);
+		var c = ranked_choice_types.type_c.name;
+
+		debugger;
+
+		if (true) {
+			$(question_type_div).children('.ranked-choice-add-alternative').css('display', '');
+		}
 	}
 }

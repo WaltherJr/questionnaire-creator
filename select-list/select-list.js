@@ -55,6 +55,31 @@ var select_list_data = (function() {
 	};
 })();
 
+$(document).ready(function() {
+	$(document).on('click', '.select-list-button', function(event) {
+		select_list_toggle_alternatives_list_dropdown($(this).closest('.select-list'));
+	});
+
+	$(document).on('click', '.select-list-add-alternative', function(event) {
+		event.preventDefault();
+		select_list_add_alternative($(this).closest('.select-list'));
+	});
+
+	$(document).on('click', '.select-list-remove-alternative-button', function() {
+		select_list_remove_alternative($(this).closest('.select-list-alternative'));
+	});
+
+	$(document).on('focusout', '.select-list', function(event) {
+		console.log(this);
+		select_list_focus_out_event(event, $(this).closest('.select-list'));
+	});
+
+	$(document).on('keydown', '.select-list', function(event) {
+		console.log("hej!");
+		select_list_key_down_event(event, $(event.target).closest('.select-list'));
+	});
+});
+
 function select_list_focus_out_event(event, select_list) {
 	if (event.relatedTarget == null) {
 		select_list_close_alternatives_list(select_list);
@@ -157,9 +182,11 @@ function select_list_create_new(editable, multi_option, button_text, add_alterna
 		'spellcheck': 'false'
 	});
 
-	var select_list_caret = $(document.createElement('span')).attr({
-		'class': select_list_data.classname('CARET')
-	}).html(select_list_data.constant('DEFAULT_CARET_HTML_ENTITY'));
+	var select_list_caret = $(document.createElement('img')).attr({
+		'class': select_list_data.classname('CARET'),
+		'src': 'svg/caret.svg',
+		'alt': 'caret'
+	});
 
 	var select_list_alternatives_list = $(document.createElement('ul')).attr({
 		'class': select_list_data.classname('ALTERNATIVES_LIST')
@@ -167,9 +194,9 @@ function select_list_create_new(editable, multi_option, button_text, add_alterna
 
 	var select_list_add_alternative_list_item = $(document.createElement('li'));
 
-	var select_list_add_alternative_button = $(document.createElement('button')).attr({
-		'class': select_list_data.classname('ADD_ALTERNATIVE_BUTTON'),
-		'type': 'button'
+	var select_list_add_alternative_button = $(document.createElement('a')).attr({
+		'class': 'select-list-add-alternative',
+		'href': '#'
 	});
 
 	if (editable === true) {
@@ -197,8 +224,6 @@ function select_list_create_new(editable, multi_option, button_text, add_alterna
 	select_list_add_alternative_list_item.append(select_list_add_alternative_button);
 	select_list_alternatives_list.append(select_list_add_alternative_list_item);
 	select_list.append(select_list_button, select_list_alternatives_list);
-
-	select_list_install_event_listeners(select_list);
 
 	return select_list;
 }
@@ -259,24 +284,25 @@ function select_list_add_alternative(select_list, alternative_data) {
 		'class': select_list_data.classname('REMOVE_ALTERNATIVE_BUTTON'),
 		'type': 'button',
 		'tabindex': '-1'
-	}).html(select_list_data.constant('DEFAULT_REMOVE_ALTERNATIVE_BUTTON_HTML_ENTITY'));
+	});
 
-
-	$(new_list_item).addClass(select_list_data.classname('ALTERNATIVE'));
+	$(new_list_item).addClass(select_list_data.classname('ALTERNATIVE')).css('display','none');
 	new_list_item.append(alternative_text);
 	new_list_item.append(selected_mark);
 	new_list_item.append(remove_alternative_button);
 
-	$(remove_alternative_button).tooltip({
-		'placement': 'right',
-		'container': 'body',
-		'title': select_list_data.constant('DEFAULT_REMOVE_ALTERNATIVE_BUTTON_TOOLTIP_TEXT')
-	});
+	$(remove_alternative_button).attr({
+		'data-toggle': 'tooltip',
+		'data-placement': 'right',
+		'data-container': 'body',
+		'title': 'Ta bort alternativ'
+	}).tooltip();
 
 	alternatives_list.children('li:last-child').before(new_list_item);
+	$(new_list_item).slideDown(400);
 
-	select_list_reset_scroll_top(select_list);
-	select_list_adjust_margin_bottom(select_list);
+	//select_list_reset_scroll_top(select_list);
+	//select_list_adjust_margin_bottom(select_list);
 }
 
 function select_list_reset_scroll_top(select_list) {
@@ -293,12 +319,17 @@ function select_list_remove_alternative(alternative) {
 
 	$(alternative).children(select_list_data.selector('REMOVE_ALTERNATIVE_BUTTON')).tooltip('destroy');
 	select_list.focus();
-	$(alternative).remove();
+	$(alternative).slideUp(400);
+
+	setTimeout(function() {
+		alternative.remove();
+	}, 400);
+
 	select_list_adjust_margin_bottom(select_list);
 }
 
 function select_list_get_alternatives_list(select_list) {
-	return select_list.children(select_list_data.selector('ALTERNATIVES_LIST'));
+	return $(select_list).find(select_list_data.selector('ALTERNATIVES_LIST'));
 }
 
 function select_list_is_alternatives_list_open(select_list) {
@@ -335,7 +366,11 @@ function select_list_close_alternatives_list(select_list) {
 	var alternatives_list = select_list_get_alternatives_list(select_list);
 
 	alternatives_list.removeClass(select_list_data.attribute('LIST_OPEN'));
-	alternatives_list.css('margin-bottom', '');
+	alternatives_list.css('position', '');
+	select_list.css('width', '');
+
+	// Old solution:
+	//alternatives_list.css('margin-bottom', '');
 	alternatives_list.children('li:last-child')
 		.children(select_list_data.selector('ADD_ALTERNATIVE_BUTTON')).attr('tabindex', '-1');
 
@@ -364,7 +399,10 @@ function select_list_is_alternative_selected(alternative) {
 function select_list_adjust_margin_bottom(select_list) {
 	var alternatives_list = select_list_get_alternatives_list(select_list);
 
-	alternatives_list.css('margin-bottom', '-' + alternatives_list.outerHeight() + 'px');
+	alternatives_list.closest('.select-list').css('width', alternatives_list.outerWidth(true) + 'px');
+	alternatives_list.css('position', 'absolute');
+	// Old solution:
+	//alternatives_list.css('margin-bottom', '-' + alternatives_list.outerHeight() + 'px');
 }
 
 function select_list_toggle_editable_mode(select_list) {
@@ -397,34 +435,14 @@ function select_list_toggle_editable_mode(select_list) {
 	}
 }
 
+function select_list_get_alternative_text(alternative) {
+	return $(alternative).find('.select-list-alternative-text').text();
+}
+
 function select_list_get_button_text(select_list) {
 	return select_list.find(select_list_data.selector('BUTTON_TEXT')).text();
 }
 
 function select_list_set_button_text(select_list, text) {
 	select_list.find(select_list_data.selector('BUTTON_TEXT')).text(text);
-}
-
-function select_list_install_event_listeners(select_list) {
-	select_list.on('click', select_list_data.selector('BUTTON'), function(event) {
-		select_list_toggle_alternatives_list_dropdown($(event.target).closest(select_list_data.selector('LIST')));
-	}).on('click', select_list_data.selector('ADD_ALTERNATIVE_BUTTON'), function(event) {
-		select_list_add_alternative($(event.target).closest(select_list_data.selector('LIST')));
-	}).on('click', select_list_data.selector('REMOVE_ALTERNATIVE_BUTTON'), function(event) {
-		select_list_remove_alternative($(event.target).parent(select_list_data.selector('ALTERNATIVE')));
-	});
-
-	select_list.on('focusout', function(event) {
-		select_list_focus_out_event(event, $(event.target).closest(select_list_data.selector('LIST')));
-	});
-
-	select_list.on('keydown', function(event) {
-		select_list_key_down_event(event, $(event.target).closest(select_list_data.selector('LIST')));
-	});
-}
-
-function select_list_uninstall_event_listeners(select_list) {
-	select_list.off('click');
-	select_list.off('focusout');
-	select_list.off('keydown');
 }

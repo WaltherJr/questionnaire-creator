@@ -1,11 +1,22 @@
 BUGGAR:
+1. Duplicera list eller radio buttons och et går inte att lägga till alternativ eller öppna listan.
+
 
 1. I Internet Explorer hamnar toolbaren för långt åt vänster, så att man knappt kan nå knapparna för att lägga till ny fråga m.m.
+FIXED!
+
 2. När man duplicerar en fråga och byter frågetyp går inte detta.
+FIXED!
+
 3. I Firefox, när man lägger till en ny radio button/checkbox och texten blir markerad, kan man inte börja skriva direkt för att
 	ersätta texten.
+
 4. Det går inte att ta bort checkboxes/radio buttons.
+FIXED!
+
 5. Tooltips går inte bort med radio-buttons.
+FIXED!
+
 6. Länk-context-menyn dyker upp när man klickar på en länk i valtyp-menyn.
 
 CSS-PROBLEM:
@@ -18,5 +29,5 @@ CSS-PROBLEM:
 
 TODO:
 Kunna ändra platshållar-text på plats i själva textrutan.
-När man klickar i "Obligatorisk fråga" ska man inte hamna längst upp i dokumentet.
+När man klickar i "Obligatorisk fråga" ska man inte hamna längst upp i dokumentet. FIXED
 Listrute-ikonen måste fixas.

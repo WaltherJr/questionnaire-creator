@@ -20,22 +20,6 @@
 
 		<script>
 			$(document).ready(function() {
-				$('#select-list-toggle-event-listeners').click(function() {
-					if ($(this).text() == 'Event listeners installed') {
-						$(this).text('Event listeners uninstalled');
-
-						$('.select-list').each(function(index, select_list) {
-							select_list_uninstall_event_listeners($(select_list));
-						});
-					} else {
-						$(this).text('Event listeners installed');
-
-						$('.select-list').each(function(index, select_list) {
-							select_list_install_event_listeners($(select_list));
-						});
-					}
-				});
-
 				var places = ['Antuna/Älvsunda',
 		 					'Brunnby-Vik',
 		 					'Carlslund/Brunnby Park',

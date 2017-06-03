@@ -1,3 +1,7 @@
+html, body {
+	height: 100%;
+}
+
 body {
 	background-color: #eee;
 	overflow-x: hidden;
@@ -9,14 +13,28 @@ body {
 	position: relative;
 }
 
+input.invalid {
+	border: 1px solid red !important;
+}
+
+.question-invalid .question-type-validation-field {
+	border: 2px solid rgba(255,0,0,.9);
+	background-color: rgba(255,0,0,.07);
+}
+
+.question.invalid-question-answer[data-current-question-type="multiple-choice-list"] .select-list-button {
+	border: 2px solid rgba(255,0,0,.9);
+	background-color: rgba(255,0,0,.07);
+}
+
 #questionnaire-context-toolbar {
 	width: 100%;
-	background-color: rgba(210,210,210,.7);
+	background-color: rgba(210,210,210,.9);
 	position: fixed;
-	bottom: 0px;
-	min-height: 0%;
+	top: 100%;
 	z-index: 100;
-	padding: 20px 0;
+	padding: 30px 0;
+	transition: top .4s;
 }
 
 #questionnaire-context-toolbar > div {
@@ -59,7 +77,8 @@ img {
 
 .questionnaire-operations-toolbar {
 	position: fixed;
-	margin-left: -50px;
+	left: 10%;
+	z-index: 100;
 }
 
 #questionnaire > .heading-and-description > .panel-heading > .panel-title {
@@ -89,14 +108,14 @@ button.active {
 }
 
 ul.question-answer-alternatives {
-	margin: 0; padding: 0;
+	margin: 0; padding: 5px 7px;
 	list-style: none;
 	overflow: hidden;
+	border-radius: 5px;
 }
 
 ul.question-answer-alternatives > li {
 	position: relative;
-	background-color: white;
 }
 
 #questionnaire > footer {
@@ -104,9 +123,10 @@ ul.question-answer-alternatives > li {
 }
 
 .single-choice-remove-alternative-button, .multiple-choice-remove-alternative-button {
-	font-weight: bold;
-	font-size: 1.4em;
 	cursor: pointer;
+	width: 10px;
+	height: 10px;
+	margin-left: 5px;
 }
 
 #questionnaire [contenteditable='true']:focus {
@@ -120,16 +140,18 @@ ul {
 	list-style-type: none;
 }
 
+.question-answer-alternatives input {
+	margin-right: 5px;
+}
+
 .question .dropdown-menu {
 	position: absolute !important;
-	border: 1px solid red;
 	z-index: 300 !important;
 }
 
 .questionnaire-question-types-list {
 	position: absolute !important;
 	z-index: 1 !important;
-	border: 1px solid red;
 }
 
 .panel-footer {
@@ -140,9 +162,40 @@ label {
 	font-weight: normal;
 }
 
+.single-choice-add-alternative, .multiple-choice-add-alternative,
+.select-list-add-alternative, .ranked-choice-add-alternative {
+	cursor: pointer;
+	color: dodgerblue;
+	font-weight: bold;
+}
+
 .single-choice-add-alternative, .multiple-choice-add-alternative {
-	cursor: text;
-	color: gray;
+	display: inline-block;
+	margin-left: 18px;
+}
+
+.ranked-choice-add-alternative {
+	display: inline-block;
+	margin-left: 5px;
+}
+
+.question-answer-alternatives img {
+	visibility: hidden;
+	opacity: 0;
+}
+
+.question-answer-alternatives > li:hover > img {
+	visibility: visible;
+	opacity: 1;
+	transition: opacity .5s;
+}
+
+.single-choice-add-alternative:hover, .multiple-choice-add-alternative:hover {
+	text-decoration: underline;
+}
+
+.question-type-single-choice-radio-buttons input[type="radio"], .question-type-multiple-choice-checkboxes input[type="checkbox"] {
+	vertical-align: top;
 }
 
 #questionnaire > .panel {
@@ -154,10 +207,20 @@ label {
 	background-color: white;
 }
 
-label[for="text-input-pane-placeholder-text"],
-label[for="image-pane-image-url"],
-.ranked-choice-type-select-list-text {
-	cursor: help;
+.green {
+	color: green;
+}
+
+.red {
+	color: red;
+}
+
+.blue {
+	color: rgb(50,50,255);
+}
+
+.bold {
+	font-weight: bold;
 }
 
 .modal-dialog {
@@ -165,6 +228,11 @@ label[for="image-pane-image-url"],
 }
 
 /* Application-specific ranked-choice styles */
+.ranked-choice-order-description {
+	min-height: 70px;
+	text-align: center;
+}
+
 .ranked-choice {
 	margin-bottom: 10px;
 }
@@ -220,11 +288,18 @@ label[for="image-pane-image-url"],
 	padding-right: 50%;
 }
 
-.ranked-choice[class*='ranked-choice-type-c'] .ranked-choice-alternative-text,
-.ranked-choice-alternative-text[contenteditable='false'] {
-	border-top-right-radius: 5px;
-	border-bottom-right-radius: 5px;
-	border: 1px solid gray;
+.ranked-choice-alternatives-list .ranked-choice-alternative-remove-button {
+	visibility: hidden;
+	opacity: 0;
+	width: 0;
+}
+
+.ranked-choice-alternatives-list .ranked-choice-enclosing-div:hover .ranked-choice-alternative-remove-button {
+	visibility: visible;
+	opacity: 1;
+	width: 20px;
+	margin-left: 3px;
+	transition: opacity .5s;
 }
 
 .ranked-choice-type-definition-list > dt {
@@ -242,4 +317,8 @@ label[for="image-pane-image-url"],
 
 .animate-margin-bottom {
 	transition: margin-bottom 1s;
+}
+
+.animate-duplicate-section {
+	transition: top .9s, margin-bottom .9s;
 }

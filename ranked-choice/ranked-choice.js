@@ -47,10 +47,8 @@ var ranked_choice_data = (function() {
 	};
 })();
 
-function ranked_choice_install_event_listeners(ranked_choice) {
-	var alternatives_list = ranked_choice_get_alternatives_list(ranked_choice);
-
-	$(alternatives_list).on('keydown', 'li > ' + ranked_choice_data.selector('ALTERNATIVE_TEXT'), function(event) {
+$(document).ready(function() {
+	$(document).on('keydown', '.ranked-choice-alternative-text', function(event) {
 		if (event.keyCode == 13) {
 			event.preventDefault(); // Prevent new line insertion
 		}
@@ -60,13 +58,18 @@ function ranked_choice_install_event_listeners(ranked_choice) {
 		ranked_choice_alternative_slider_drag_handle_key_down_event(event);
 	});
 
-	/*
-	.on('mousedown', 'li > ' + ranked_choice_data.selector('ALTERNATIVE_SLIDER_DRAG_HANDLE') + ', li > ' +
-			ranked_choice_data.selector('ALTERNATIVE_TRIANGLE'), function(event) {
- 		ranked_choice_alternative_mouse_down_event(event);
+	$(document).on('mousedown', '.ranked-choice-alternative-slider-drag-handle', function(event) {
+		ranked_choice_alternative_mouse_down_event(event);
 	});
-	*/
-}
+
+	$(document).on('mousemove', function(event) {
+		ranked_choice_document_mouse_move_event(event);
+	});
+
+	$(document).on('mouseup', function() {
+		ranked_choice_document_mouse_up_event();
+	});
+});
 
 function ranked_choice_create_new(steps, update_slider_bar_function_callback) {
 	var attribute_slider_steps = ranked_choice_data.attribute('SLIDER_STEPS');
@@ -86,7 +89,6 @@ function ranked_choice_create_new(steps, update_slider_bar_function_callback) {
 	});
 
 	ranked_choice.append(ranked_choice_alternatives_list, ranked_choice_slider_bar);
-	ranked_choice_install_event_listeners(ranked_choice);
 
 	if (typeof(update_slider_bar_function_callback) !== undefined) {
 		ranked_choice_set_slider_bar_update_function_callback(ranked_choice, update_slider_bar_function_callback);
@@ -100,7 +102,7 @@ function ranked_choice_create_new(steps, update_slider_bar_function_callback) {
 function ranked_choice_update_slider_bar(ranked_choice) {
 	var function_callback = ranked_choice.data(ranked_choice_data.constant('SLIDER_BAR_UPDATE_FUNCTION_CALLBACK'));
 
-	if (function_callback !== 'undefined') {
+	if (function_callback != undefined) {
 		var slider_bar = ranked_choice_get_slider_bar(ranked_choice);
 		var alternatives_list = ranked_choice_get_alternatives_list(ranked_choice);
 
@@ -121,82 +123,54 @@ function ranked_choice_alternative_slider_drag_handle_key_down_event(event) {
 		}
 	} else if (event.keyCode == 39) {
 		if (ranked_choice_move_alternative(alternative, 1)) {
-			ranked_choice_update_slider_bar(alternative.closest(ranked_choice_data.selector('RANKED_CHOICE')));
+			ranked_choice_update_slider_bar(alternative.closest('.ranked-choice'));
 		}
 	}
 }
-
-/*
-function ranked_choice_alternative_slider_drag_handle_key_down_event(event) {
-	var target = event.target || event.srcElement;
-	var ranked_choice = $(target).closest('li');
-	var ranked_choice_alternatives_list = ranked_choice.closest(RANKED_CHOICE_ALTERNATIVES_LIST);
-	var ranked_choice_slider_bar = ranked_choice_alternatives_list.siblings(SEL_RANKED_CHOICE_SLIDER_BAR);
-	var ranked_choice_order_description = ranked_choice_alternatives_list.siblings(RANKED_CHOICE_ORDER_DESCRIPTION);
-	var ranked_choice_type = ranked_choice_slider_bar.attr(ATTR_RANKED_CHOICE_CHOICE_TYPE);
-	var ranked_choice_position = parseInt(ranked_choice.attr(ATTR_RANKED_CHOICE_ALTERNATIVE_POSITION));
-	var total_number_of_steps = parseInt(ranked_choice_slider_bar.attr(ATTR_RANKED_CHOICE_SLIDER_STEPS));
-	var step_bound = Math.floor(total_number_of_steps / 2);
-
-	if (event.keyCode == 37 && ranked_choice_position > -step_bound) {
-		// Left arrow key
-		ranked_choice_move_alternative(ranked_choice_position-1, ranked_choice, total_number_of_steps, ranked_choice_slider_bar);
-		updateRankedChoiceOrderDescription(ranked_choice_type, ranked_choice_order_description, ranked_choice_alternatives_list);
-
-	} else if (event.keyCode == 39 && ranked_choice_position < step_bound) {
-		// Right arrow key
-		ranked_choice_move_alternative(ranked_choice_position+1, ranked_choice, total_number_of_steps, ranked_choice_slider_bar);
-		updateRankedChoiceOrderDescription(ranked_choice_type, ranked_choice_order_description, ranked_choice_alternatives_list);
-	}
-}
-*/
 
 function ranked_choice_alternative_mouse_down_event(event) {
-	/*
-	var target = event.target || event.srcElement;
-	var ranked_choice = $(target).closest('li');
-	var ranked_choice_alternatives_list = ranked_choice.closest(RANKED_CHOICE_ALTERNATIVES_LIST);
-	var ranked_choice_slider_bar = ranked_choice_alternatives_list.siblings(RANKED_CHOICE_SLIDER_BAR);
-	var ranked_choice_slider_drag_handle = ranked_choice.children(RANKED_CHOICE_ALTERNATIVE_SLIDER_DRAG_HANDLE);
-	var ranked_choice_slider_drag_handle_offset_x = event.clientX - $(ranked_choice_slider_drag_handle).offset().left;
-	var ranked_choice_order_description = ranked_choice_alternatives_list.siblings(RANKED_CHOICE_ORDER_DESCRIPTION);
-	var ranked_choice_type = ranked_choice_slider_bar.attr(ATTR_RANKED_CHOICE_CHOICE_TYPE);
-	var ranked_choice_position = parseInt(ranked_choice.attr(ATTR_RANKED_CHOICE_ALTERNATIVE_POSITION));
+	var ranked_choice = $(event.target).closest('.ranked-choice');
+	var alternative = $(event.target).closest('li');
+	var slider_bar = ranked_choice_get_slider_bar(ranked_choice);
+	var slider_steps = ranked_choice_get_slider_bar_steps(ranked_choice);
+	var slider_bar_width = slider_bar.outerWidth();
+	var dx = slider_bar_width / (slider_steps-1);
 
-	var total_width = ranked_choice_slider_bar.outerWidth() - ranked_choice_slider_drag_handle.outerWidth();
-	var total_number_of_steps = parseInt(ranked_choice_slider_bar.attr(ATTR_RANKED_CHOICE_SLIDER_STEPS));
-	var dx = total_width / (total_number_of_steps - 1);
-	var step_bound = Math.floor(total_number_of_steps / 2);
-	var relative_x_pos = 0;
-
-	$('html').css('cursor', 'ew-resize');
-
-	ranked_choice_slider_drag_handle.addClass('is-dragging');
-
-	$(document).on('mouseup', function(event) {
-
-		$(document).off('mousemove');
-		$('html').css('cursor', 'auto');
-		$(ranked_choice_slider_drag_handle).removeClass('is-dragging');
-
-	}).on('mousemove', function(event) {
-
-		relative_x_pos = event.clientX - (ranked_choice_slider_drag_handle.offset().left + ranked_choice_slider_drag_handle_offset_x);
-		ranked_choice_position = parseInt(ranked_choice.attr(ATTR_RANKED_CHOICE_ALTERNATIVE_POSITION));
-
-		if (relative_x_pos > dx && ranked_choice_position < step_bound) {
-			// move to the right
-			ranked_choice_move_alternative(ranked_choice_position+1, ranked_choice, total_number_of_steps, ranked_choice_slider_bar);
-			updateRankedChoiceOrderDescription(ranked_choice_type, ranked_choice_order_description, ranked_choice_alternatives_list);
-
-		} else if (relative_x_pos < -dx && ranked_choice_position > -step_bound) {
-			// move to the left
-			ranked_choice_move_alternative(ranked_choice_position-1, ranked_choice, total_number_of_steps, ranked_choice_slider_bar);
-			updateRankedChoiceOrderDescription(ranked_choice_type, ranked_choice_order_description, ranked_choice_alternatives_list);
-
-		}
+	$(ranked_choice).data({
+		'initial-mouse-pos-x': event.clientX,
+		'dx': dx,
+		'active-alternative': alternative
 	});
-	*/
+
+	// Save active ranked-choice for document mousemove event handler
+	$(document).data('active-ranked-choice', ranked_choice);
+}
+
+function ranked_choice_document_mouse_move_event(event) {
+	var active_ranked_choice = $(document).data('active-ranked-choice');
+
+	if (active_ranked_choice != undefined) {
+		var initial_mouse_pos_x = active_ranked_choice.data('initial-mouse-pos-x');
+		var dx = active_ranked_choice.data('dx');
+		var apa = event.clientX - initial_mouse_pos_x;
+		var direction = apa > 0 ? 1 : -1;
+
+		if (Math.abs(apa) > dx) {
+			// Move active alternative
+			var active_alternative = active_ranked_choice.data('active-alternative');
+			var slider_drag_square = $(active_alternative).children('.ranked-choice-alternative-slider-drag-handle');
+
+			ranked_choice_move_alternative(active_alternative, direction);
+			ranked_choice_update_slider_bar(active_ranked_choice);
+
+			// Recalculate offset
+			$(active_ranked_choice).data('initial-mouse-pos-x', slider_drag_square.offset().left);
+		}
+	}
+}
+
+function ranked_choice_document_mouse_up_event(event) {
+	$(document).removeData('active-ranked-choice');
 }
 
 function ranked_choice_get_alternative(ranked_choice, alternative_index) {
@@ -235,7 +209,7 @@ function ranked_choice_get_alternatives_positions(ranked_choice) {
 }
 
 function ranked_choice_get_slider_bar(ranked_choice) {
-	return ranked_choice.children(ranked_choice_data.selector('SLIDER_BAR'));
+	return ranked_choice.children('.ranked-choice-slider-bar');
 }
 
 function ranked_choice_get_slider_bar_steps(ranked_choice) {
@@ -273,7 +247,6 @@ function ranked_choice_get_alternatives(ranked_choice_element) {
 }
 
 function ranked_choice_update_alternatives_positions(ranked_choice) {
-	console.log("hej!");
 	var ranked_choice_alternatives_list = ranked_choice.children('.ranked-choice-alternatives-list');
 
 	ranked_choice_alternatives_list.children('li').each(function(index, alternative) {
@@ -292,9 +265,17 @@ function ranked_choice_add_alternative(ranked_choice, alternative_position, alte
 
 	var new_alternative = $(document.createElement('li'));
 	var new_alternative_text = $(document.createElement('span')).attr({'class': 'ranked-choice-alternative-text', 'contenteditable': 'true', 'spellcheck': 'false'});
-	var new_alternative_remove_button = $(document.createElement('button')).attr({'class': 'ranked-choice-alternative-remove-button', 'type': 'button'}).html('&times;').tooltip({'title': 'Ta bort alternativ', 'placement': 'right'});
 	var new_alternative_polygon = $(document.createElement('div')).attr('class', 'ranked-choice-alternative-polygon');
 	var new_alternative_slider_drag_handle = $(document.createElement('button')).attr({'class': 'ranked-choice-alternative-slider-drag-handle', 'type': 'button'});
+	var enclosing_div = $(document.createElement('div')).attr('class', 'ranked-choice-enclosing-div');
+	var new_alternative_remove_button = $(document.createElement('button')).attr({
+		'class': 'ranked-choice-alternative-remove-button',
+		'type': 'button',
+		'data-toggle': 'tooltip',
+		'data-placement': 'right',
+		'data-container': 'body',
+		'title': 'Ta bort alternativ'
+	}).tooltip();
 
 	if (typeof(alternative_data) === 'string') {
 		new_alternative_text.html(alternative_data);
@@ -302,11 +283,11 @@ function ranked_choice_add_alternative(ranked_choice, alternative_position, alte
 		new_alternative_text.html(alternative_data.text);
 
 		if (alternative_data.removable === false) {
-			new_alternative_remove_button.css('display', 'none');
+			new_alternative_remove_button = undefined;
 		}
 
 		if (alternative_data.editable === false) {
-			new_alternative_text.attr('contenteditable', 'false');
+			new_alternative_text.attr({'contenteditable': 'false', 'data-editable': 'false'});
 		}
 
 		if (typeof(alternative_data.font) === 'object' && alternative_data.font !== null) {
@@ -322,7 +303,8 @@ function ranked_choice_add_alternative(ranked_choice, alternative_position, alte
 		new_alternative_text.text(ranked_choice_data.constant('DEFAULT_ALTERNATIVE_TEXT'));
 	}
 
-	$(new_alternative).append(new_alternative_text, new_alternative_remove_button, new_alternative_polygon, new_alternative_slider_drag_handle);
+	$(enclosing_div).prepend(new_alternative_text, new_alternative_remove_button);
+	$(new_alternative).append(enclosing_div, new_alternative_polygon, new_alternative_slider_drag_handle);
 
 	if (typeof(alternative_position) === 'undefined') {
 		ranked_choice_set_alternative_position(ranked_choice, new_alternative, ranked_choice_data.attribute('DEFAULT_ALTERNATIVE_POSITION'));
@@ -343,8 +325,10 @@ function ranked_choice_remove_alternative(alternative) {
 		return false;
 	} else {
 		var ranked_choice = alternative.closest('.ranked-choice');
+		alternative.find('.ranked-choice-alternative-remove-button').tooltip('destroy');
 		alternative.remove();
 		ranked_choice_update_alternatives_positions(ranked_choice);
+		ranked_choice_update_slider_bar(ranked_choice);
 		return true;
 	}
 }

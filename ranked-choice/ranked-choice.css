@@ -1,3 +1,7 @@
+.ranked-choice .tooltip {
+	white-space: nowrap;
+}
+
 .ranked-choice-alternatives-list {
 	margin: 0;
 	padding: 0;
@@ -24,7 +28,7 @@ div.ranked-choice-alternative-polygon {
 	height: 80px;
 	position: absolute;
 	top: 100%;
-	cursor: ew-resize;
+	/* cursor: ew-resize; */
 	left: calc(50% - 5px);
 	z-index: 1;
 	background-image: url('../svg/ranked_choice_polygon.svg');
@@ -33,56 +37,49 @@ div.ranked-choice-alternative-polygon {
 	background-size: 100% 100%;
 }
 
-/*
-ul.ranked-choice-alternatives-list li:first-child span {
-	cursor: ew-resize;
-	font-size: 22px;
-	padding: 0 10px;
-}
-*/
-
 ul.ranked-choice-alternatives-list > li > div > span[class='tooltip'] {
 	margin-left: 5px;
 }
 
 .ranked-choice-alternative-text {
 	display: inline-block;
+	float: left;
 	text-overflow: ellipsis;
 	text-align: center;
-	padding: 5px 10px;
-	height: 32px;
-	font-size: 14px;
-	background-color: rgb(220,220,220);
-	border: 1px solid gray;
-	border-right: none;
+	font-size: 15px;
 	position: relative;
 	z-index: 2;
-	color: rgb(40,40,40);
+	color: black;
 	text-shadow: 0 1px 1px white;
 	white-space: nowrap;
-	border-top-left-radius: 5px;
-	border-bottom-left-radius: 5px;
 }
 
-.ranked-choice-alternative-text[contenteditable='false'] {
-	cursor: ew-resize;
+.ranked-choice-enclosing-div {
+	display: inline-block;
+	background-color: rgb(200,200,200);
+	line-height: 50px;
+	padding: 5px 12px;
+	border: 1px solid gray;
+	position: relative;
+	z-index: 2;
+	border-radius: 5px;
 }
 
 .ranked-choice-alternative-remove-button {
-	display: inline-block;
-	padding: 5px 10px;
-	height: 32px;
-	font-size: 17px;
-	line-height: 1em !important;
-	background-color: rgb(220,220,220);
+	display: block;
+	float: right;
+	height: 20px;
+	padding: 0;
+	box-sizing: border-box;
+	border: none;
+	background: none;
+	width: 20px;
+	background-image: url('svg/remove_alternative.svg');
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
 	cursor: pointer;
 	text-decoration: none;
-	color: black;
 	font-weight: bold;
-	border: 1px solid gray;
-	border-left: none;
-	border-top-right-radius: 5px;
-	border-bottom-right-radius: 5px;
 }
 
 .ranked-choice-alternative-slider-drag-handle {
@@ -98,12 +95,6 @@ ul.ranked-choice-alternatives-list > li > div > span[class='tooltip'] {
 	margin-bottom: -100px;
 	border: 1px solid rgba(0,0,0,.4);
 	background-color: rgb(190,190,190);
-}
-
-button[class*='ranked-choice-alternative-slider-drag-handle'].is-dragging {
-	background-color: rgb(210,210,210) !important;
-	background: linear-gradient(to top, rgb(170,170,170), rgb(240,240,240)) !important;
-	border: 1px solid rgba(0,0,0,.7) !important;
 }
 
 .ranked-choice-slider-bar {

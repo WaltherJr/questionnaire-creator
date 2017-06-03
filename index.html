@@ -61,10 +61,10 @@
 					<button type="button" class="questionnaire-add-image-button btn btn-default" title="Lägg till bild">
 						<span class="glyphicon glyphicon-picture"></span>
 					</button>
-					<button type="button" class="questionnaire-add-hyperlink-button btn btn-default" title="Lägg till/redigera hyperlänk">
+					<button type="button" class="questionnaire-add-hyperlink-button btn btn-default" title="Lägg till hyperlänk">
 						<span class="glyphicon glyphicon-link"></span>
 					</button>
-					<button type="button" class="questionnaire-add-email-link-button btn btn-default" title="Lägg till/redigera email-länk">
+					<button type="button" class="questionnaire-add-email-link-button btn btn-default" title="Lägg till email-länk">
 						<span class="glyphicon glyphicon-envelope"></span>
 					</button>
 					<!--
@@ -82,7 +82,7 @@
 					<button type="button" class="questionnaire-save-questionnaire-button btn btn-default" title="Spara formulär">
 						<span class="glyphicon glyphicon-floppy-save"></span>
 					</button>
-					<button type="button" class="questionnaire-load-questionnaire-button btn btn-default" title="Ladda formulär">
+					<button type="button" class="questionnaire-load-questionnaire-button btn btn-default" title="Öppna formulär">
 						<span class="glyphicon glyphicon-folder-open"></span>
 					</button>
 					<button type="button" class="questionnaire-clear-questionnaire-button btn btn-default" title="Rensa formulär">
@@ -107,15 +107,21 @@
 		</div>
 		<!-- ROW ONE END -->
 		<footer id="questionnaire-context-toolbar">
-			<div id="questionnaire-context-toolbar-link-pane">
+			<div id="questionnaire-context-toolbar-hyperlink-pane">
 				<form>
-					<label>länk-text:&nbsp;<input id="link-pane-link-text" type="text"></label>
-					<label>länk-adress:&nbsp;<input id="link-pane-link-url" type="text"></label>
+					<label>länk-text:&nbsp;<input id="hyperlink-pane-link-text" type="text"></label>
+					<label>länk-adress:&nbsp;<input id="hyperlink-pane-link-url" type="text"></label>
+				</form>
+			</div>
+			<div id="questionnaire-context-toolbar-email-link-pane">
+				<form>
+					<label>länk-text:&nbsp;<input id="email-link-pane-link-text" type="text"></label>
+					<label>email-adress:&nbsp;<input id="email-link-pane-email-address" type="text"></label>
 				</form>
 			</div>
 			<div id="questionnaire-context-toolbar-text-input-pane">
 				<form>
-					<label for="text-input-pane-placeholder-text">placeholder-text:</label>
+					<label for="text-input-pane-placeholder-text">Platshållar-text:</label>
 					<input id="text-input-pane-placeholder-text" type="text">
 					<button id="text-input-pane-placeholder-text-reset-button" type="button">Återställ</button>
 				</form>
@@ -217,18 +223,15 @@
 		</div>
 
 		<div class="panel-body">
-			<div class="alert alert-danger" role="alert" style="display: none">
-				<strong>Observera!</strong> Denna fråga är obligatorisk.
-			</div>
-
 			<p class="question-description" spellcheck="false" contenteditable="true">Frågebeskrivning</p>
-
 			<div class="question-type-none"></div>
 		</div>
 
 		<div class="panel-footer">
 			<div class="checkbox-inline">
-				<label class="questionnaire-mandatory-question-label" title="Gör denna fråga obligatorisk att svara på"><input type="checkbox" checked>Obligatorisk fråga</label>
+				<label class="mandatory-question-label" title="Gör denna fråga obligatorisk att svara på">
+					<input class="mandatory-question-checkbox" type="checkbox" checked>Obligatorisk fråga
+				</label>
 			</div>
 		</div>
 
@@ -239,20 +242,20 @@
 	<div id="questionnaire-question-types">
 		<!-- Short answer -->
 		<div class="question-type-short-answer">
-			<input type="text" class="form-control question-short-answer-text" spellcheck="true" placeholder="Kort svarstext" value="">
+			<input type="text" class="form-control question-short-answer-text question-type-validation-field" spellcheck="true" placeholder="Kort svarstext" value="">
 		</div>
 
 		<!-- Paragraph -->
 		<div class="question-type-paragraph">
-			<textarea class="form-control question-paragraph-text" spellcheck="true" placeholder="Lång svarstext" rows="3"></textarea>
+			<textarea class="form-control question-paragraph-text question-type-validation-field" spellcheck="true" placeholder="Lång svarstext" rows="3"></textarea>
 		</div>
 
 		<!-- Single choice: radio buttons -->
 		<div class="question-type-single-choice-radio-buttons">
-			<ul class="question-answer-alternatives">
+			<ul class="question-answer-alternatives question-type-validation-field">
 				<li>
-					<input type="radio" disabled>
-					<label class="single-choice-add-alternative">Lägg till alternativ</label>
+					<!--<input type="radio" disabled>-->
+					<a class="single-choice-add-alternative" href="#">Lägg till alternativ</a>
 				</li>
 			</ul>
 		</div>
@@ -263,12 +266,12 @@
 
 		<!-- Multiple choice: checkboxes -->
 		<div class="question-type-multiple-choice-checkboxes">
-		<ul class="question-answer-alternatives">
-			<li>
-				<input type="checkbox" disabled>
-				<label class="multiple-choice-add-alternative">Lägg till alternativ</label>
-			</li>
-		</ul>
+			<ul class="question-answer-alternatives question-type-validation-field">
+				<li>
+					<!--<input type="checkbox" disabled>-->
+					<a class="multiple-choice-add-alternative" href="#">Lägg till alternativ</a>
+				</li>
+			</ul>
 		</div>
 
 		<!-- Multiple choice: list -->
@@ -289,7 +292,7 @@
 			<span class="ranked-choice-type-select-list-text">Valtyp:</span>
 			<select class="ranked-choice-type-select-list"></select>
 		</label>
-		<button class="btn btn-primary ranked-choice-add-alternative-button" type="button" style="margin-left: 5px">Lägg till alternativ</button>
+		<a class="ranked-choice-add-alternative" href="#">Lägg till alternativ</a>
 		</div>
 	</div>
 	<!-- QUESTION TYPES END -->
@@ -307,13 +310,13 @@
 	<form>
 	<div class="form-group">
 	<label class="lbl-image-address" for="txt-image-address">Bildadress:</label>
-	<input id="txt-image-address" type="text" class="form-control">
+	<input id="add-image-modal-image-url" type="text" class="form-control" value="">
 	</div>
 	</form>
 	</div>
 	<div class="modal-footer">
 	<button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
-	<button type="button" class="btn btn-primary" data-dismiss="modal">Lägg till</button>
+	<button type="button" class="btn btn-primary">Lägg till</button>
 	</div>
 	</div>
 	</div>
@@ -325,23 +328,19 @@
 	<div class="modal-content">
 	<div class="modal-header">
 	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-	<h4 class="modal-title">Infoga länk</h4>
+	<h4 class="modal-title">Lägg till hyperlänk</h4>
 	</div>
 	<div class="modal-body">
 	<form>
 	<div class="form-group">
-	<label for="txt-link-text">Länktext:</label>
-	<input id="txt-link-text" type="text" class="form-control">
-	</div>
-	<div class="form-group">
-	<label class="lbl-link-address" for="txt-link-address">Länkadress:</label>
-	<input id="txt-link-address" type="text" class="form-control" placeholder="http://www.example.com">
+	<label class="lbl-link-address" for="add-hyperlink-modal-hyperlink-url">Länkadress:</label>
+	<input id="add-hyperlink-modal-hyperlink-url" type="text" class="form-control" value="">
 	</div>
 	</form>
 	</div>
 	<div class="modal-footer">
 	<button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
-	<button type="button" class="btn btn-primary" data-dismiss="modal">Lägg till</button>
+	<button type="button" class="btn btn-primary">Lägg till</button>
 	</div>
 	</div>
 	</div>
@@ -353,23 +352,19 @@
 	<div class="modal-content">
 	<div class="modal-header">
 	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-	<h4 class="modal-title">Infoga email-länk</h4>
+	<h4 class="modal-title">Lägg till email-länk</h4>
 	</div>
 	<div class="modal-body">
-		<form>
-			<div class="form-group">
-				<label for="txt-link-text">Länktext:</label>
-				<input id="txt-link-text" type="text" class="form-control">
-			</div>
-			<div class="form-group">
-				<label class="lbl-link-address" for="txt-link-address">Länkadress:</label>
-				<input id="txt-link-address" type="text" class="form-control" placeholder="john.doe@example.com" value="john.doe@example.com">
-			</div>
-			<div style="text-align: right">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
-				<button type="submit" data-dismiss="modal" class="btn btn-primary">Lägg till</button>
-			</div>
-		</form>
+	<form>
+	<div class="form-group">
+	<label class="add-email-link-modal-email-address" for="txt-email-address">Email-adress:</label>
+	<input id="add-email-link-modal-email-address" type="text" class="form-control" value="">
+	</div>
+	</form>
+	</div>
+	<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
+	<button type="button" class="btn btn-primary">Lägg till</button>
 	</div>
 	</div>
 	</div>
@@ -387,7 +382,7 @@
 	<p>Tack för din medverkan!</p>
 	</div>
 	<div class="modal-footer">
-	<button type="button" class="btn btn-default" data-dismiss="modal">Stäng</button>
+	<button type="button" class="btn btn-default btn-primary" data-dismiss="modal">OK</button>
 	</div>
 	</div>
 	</div>
@@ -452,11 +447,30 @@
 	<h4 class="modal-title">Bekräfta rensning av formulär</h4>
 	</div>
 	<div class="modal-body">
-	<p>Är du säker på att du vill rensa formuläret? Detta kommer att ta bort alla frågor och går inte att ångra.</p>
+	<p>Är du säker på att du vill rensa formuläret?</p>
+	<p>Detta kommer att ta bort hela formulärets innehåll och går inte att ångra. Om du har sparat formuläret kan du fortfarande ladda in det på nytt sen.</p>
 	</div>
 	<div class="modal-footer">
 	<button type="button" class="btn btn-default" data-dismiss="modal">Avbryt</button>
 	<button type="button" class="btn btn-danger" data-dismiss="modal">Rensa</button>
+	</div>
+	</div>
+	</div>
+	</div>
+
+	<!-- No text selected modal -->
+	<div id="questionnaire-no-text-selected-modal-dialog" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-sm" role="document">
+	<div class="modal-content">
+	<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">Inget innehåll markerat</h4>
+	</div>
+	<div class="modal-body">
+		<p>För att kunna skapa en <span id="questionnaire-no-text-selected-modal-item"></span> måste du först <b>markera</b> en bit text eller en bild.</p>
+	</div>
+	<div class="modal-footer">
+	<button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
 	</div>
 	</div>
 	</div>
