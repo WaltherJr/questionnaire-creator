@@ -31,6 +31,8 @@ function questionnaire_preview_questionnaire(preview_mode_enabled) {
 		$('#questionnaire > .panel > .panel-heading > .panel-title').attr('contenteditable', 'false');
 		$('#questionnaire > .panel > .panel-footer').css('display', 'none');
 
+		$('#questionnaire-submit-button').prop('disabled', false).text('Skicka in svar');
+
 		questionnaire_set_links_click_behaviour(true);
 
 	} else {
@@ -197,13 +199,7 @@ function questionnaire_preview_ranked_choice(preview_mode_enabled, question_inde
 		$(question_type_div).find('.ranked-choice-alternative-text:not([data-editable="false"])').attr('contenteditable', 'true');
 		$(question_type_div).find('.ranked-choice-alternative-remove-button').css('display', '');
 
-		var a = $(question_type_div).find('.ranked-choice');
-		var b = questionnaire_get_ranked_choice_type_from_ranked_choice_ctrl(a);
-		var c = ranked_choice_types.type_c.name;
-
-		debugger;
-
-		if (true) {
+		if (!$(question_type_div).find('.ranked-choice').hasClass('ranked-choice-type-c')) {
 			$(question_type_div).children('.ranked-choice-add-alternative').css('display', '');
 		}
 	}

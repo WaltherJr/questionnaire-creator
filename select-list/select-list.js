@@ -299,6 +299,7 @@ function select_list_add_alternative(select_list, alternative_data) {
 	}).tooltip();
 
 	alternatives_list.children('li:last-child').before(new_list_item);
+	questionnaire_select_text_node(alternative_text.get(0));
 	$(new_list_item).slideDown(400);
 
 	//select_list_reset_scroll_top(select_list);

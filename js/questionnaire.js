@@ -519,8 +519,8 @@ var ranked_choice_types = {
             var alternative_position_diff = arrow_alternative_position - ranked_choice_types.type_c.alternatives_initial_position;
 			var alternative_a = ranked_choice_question_type_div.find('.ranked-choice-scale-text-list').children('li:first-child').children('span').text();
           	var alternative_b = ranked_choice_question_type_div.find('.ranked-choice-scale-text-list').children('li:last-child').children('span').text();
-            var description_first_alternative = alternative_position_diff >= 0 ? alternative_a : alternative_b;
-            var description_second_alternative = alternative_position_diff >= 0 ? alternative_b : alternative_a;
+            var description_first_alternative = alternative_position_diff >= 0 ? alternative_b : alternative_a;
+            var description_second_alternative = alternative_position_diff >= 0 ? alternative_a : alternative_b;
             var scale_text_index = Math.abs(alternative_position_diff);
             var order_description = description_first_alternative + ' <b>' + ranked_choice_types.type_c.ranking_scale_text[Math.abs(alternative_position_diff)] + '</b> ' + description_second_alternative;
 
@@ -648,23 +648,43 @@ function questionnaire_set_links_click_behaviour(normal_behaviour) {
 	}
 }
 
+function questionnaire_init_contenteditable_paste_filter() {
+	$(document).on('paste', '[contenteditable="true"]', function(event) {
+		event.preventDefault();
+	    var text = undefined;
+
+	    if (window.clipboardData) {
+	    	text = window.clipboardData.getData("Text");
+	    } else {
+			text = event.originalEvent.clipboardData.getData("text/plain");
+	    	document.execCommand("insertText", false, text);
+	    }
+	});
+}
+
+function questionnaire_init_active_section_event_listeners() {
+	$(document).on('blur', '.panel', function(event) {
+		questionnaire_set_active_section(undefined);
+	});
+
+	$(document).on('focus', '.panel', function(event) {
+		questionnaire_set_active_section($(this));
+	});
+}
+
 $(document).ready(function() {
 	questionnaire_activate_main_toolbar_tooltips();
 	questionnaire_init_modal_dialogs();
 	questionnaire_set_links_click_behaviour(false);
 	questionnaire_init_popover_guides();
+	questionnaire_init_contenteditable_paste_filter();
+	questionnaire_init_active_section_event_listeners();
 
+	/*
 	$(document).on('click', questionnaire.operations_toolbar.selector + ' button', function() {
 		$(this).blur();
 	});
-
-	$(document).on('click', questionnaire.section.footer_toolbar.selector + ' button', function() {
-		$(this).blur();
-	});
-
-	$(document).on('click', questionnaire.question.mandatory_question_label.selector, function() {
-		$(this).blur();
-	});
+	*/
 
 	$('#questionnaire-context-toolbar').children('div').css('display', 'none');
 
@@ -846,7 +866,7 @@ $(document).ready(function() {
 	$('.ranked-choice-type-select-list').change(function() {
 		 questionnaire_change_ranked_choice_type($(this)
 		 	.closest('.question-type-ranked-choice')
-		 	.children(ranked_choice_data.selector('RANKED_CHOICE')), $(this).val());
+		 	.children('.ranked-choice'), $(this).val());
 	});
 
 	$('#questionnaire-submit-button').on('click', function() {
@@ -863,7 +883,6 @@ $(document).ready(function() {
 
 		for (var i = 0; i < saved_questionnaires.length; i++) {
 			if (saved_questionnaires[i].name === selected_questionnaire) {
-				console.log("hej!");
 				// Remove the saved questionnaire
 				saved_questionnaires.splice(i, 1);
 
@@ -899,7 +918,10 @@ $(document).ready(function() {
 	$('.ranked-choice-alternatives-list').tooltip({'title': 'Ta bort alternativ', 'placement': 'right', 'container': 'body', 'selector': '.remove-ranked-choice'});
 
 	$(document).on('click', questionnaire.question.question_types_list.selector + ' > li', function() {
-		questionnaire_change_question_type($(this).closest('.panel'), $(this).attr('data-question-type'));
+		var panel = $(this).closest('.panel');
+
+		questionnaire_change_question_type(panel, $(this).attr('data-question-type'));
+		panel.focus();
 	});
 
 	$(document).on('click', '.single-choice-remove-alternative-button, .multiple-choice-remove-alternative-button', function() {
@@ -908,28 +930,19 @@ $(document).ready(function() {
 
 	$('#questionnaire-clear-questionnaire-modal-dialog button[class*="btn-danger"]').on('click', questionnaire_clear);
 
-	$('.question-type-ranked-choice').tooltip({
-		title: 'Hej',
-		container: 'body',
-		selector: '.ranked-choice-order-description',
-	});
-
 	questionnaire_activate_section_toolbar_tooltips();
 });
 
 function questionnaire_install_section_toolbar_event_listeners() {
 	$(questionnaire.selector).on('click', '.questionnaire-move-section-up-button', function() {
-		$(this).tooltip('hide');
 		questionnaire_move_section_up($(this).closest('.panel'));
 	});
 
 	$(questionnaire.selector).on('click', '.questionnaire-move-section-down-button', function() {
-		$(this).tooltip('hide');
 		questionnaire_move_section_down($(this).closest('.panel'));
 	});
 
 	$(questionnaire.selector).on('click', '.questionnaire-duplicate-section-button', function() {
-		$(this).tooltip('hide');
 		questionnaire_duplicate_section($(this).closest('.panel'));
 	});
 
@@ -942,7 +955,8 @@ function questionnaire_install_section_toolbar_event_listeners() {
 function questionnaire_activate_main_toolbar_tooltips() {
 	$(questionnaire.operations_toolbar.selector).children('button').tooltip({
 		container: 'body',
-		placement: 'right'
+		placement: 'right',
+		trigger: 'hover'
 	});
 }
 
@@ -950,6 +964,7 @@ function questionnaire_activate_section_toolbar_tooltips() {
 	$(questionnaire.selector).tooltip({
 		container: 'body',
 		placement: 'top',
+		trigger: 'hover',
 		selector: '.questionnaire-move-section-up-button, \
 					.questionnaire-move-section-down-button, \
 					.questionnaire-duplicate-section-button, \
@@ -1323,6 +1338,7 @@ function questionnaire_submit() {
 	var invalid_questions = questionnaire_validate();
 
 	if (invalid_questions.length === 0) {
+		$('#questionnaire-submit-button').prop('disabled', true).text('Svar inskickat');
 		questionnaire_display_questionnaire_submitted_modal();
 		questionnaire_post();
 	} else {
@@ -1444,15 +1460,7 @@ function questionnaire_add_question_answer_alternative(question_div, question_ty
 		'title': 'Ta bort alternativ'
 	}).tooltip();
 
-	/*
-	$(new_question_answer_remove_alternative_button).tooltip({
-		container: 'body',
-		placement: 'right',
-		title: 'Ta bort alternativ'
-	});
-	*/
-
-	questionnaire_select_element_contents(new_question_answer_alternative_label);
+	questionnaire_select_text_node(new_question_answer_alternative_label);
 
 	return new_question_answer_alternative_list_item;
 }
@@ -1464,13 +1472,20 @@ function questionnaire_remove_question_answer_alternative(alternative) {
 	});
 }
 
-// http://stackoverflow.com/questions/20009575/firefox-doesnt-select-contenteditable-text-properly
-function questionnaire_select_element_contents(node) {
+function questionnaire_select_text_node(node) {
+		var range = rangy.createRange();
+		range.selectNodeContents(node);
+		var sel = rangy.getSelection();
+		sel.setSingleRange(range);
+		$(node).focus();
+
+	/*
 	var range = rangy.createRange();
 	range.selectNodeContents(node);
 	var sel = rangy.getSelection();
 	sel.removeAllRanges();
 	sel.addRange(range);
+	*/
 }
 
 function questionnaire_get_number_of_question_types() {
@@ -1584,6 +1599,8 @@ function questionnaire_remove_section(section) {
 		section.addClass('animate-margin-top');
 		section.css({'z-index': '0', 'margin-top': '-=' + section_height + 'px'});
 
+		questionnaire_set_active_section(undefined);
+
 		section.siblings('.panel').each(function(sibling_index, sibling_section) {
 			var sibling_section_z_index = questionnaire_get_section_z_index(sibling_section);
 
@@ -1613,6 +1630,8 @@ function questionnaire_duplicate_section(section) {
 		return false;
 	} else {
 		var duplicated_section = $(section).clone(false);
+
+		questionnaire_set_active_section(duplicated_section);
 
 		duplicated_section.css('z-index', '+=1');
 
@@ -1768,6 +1787,9 @@ function questionnaire_move_section(section, direction) {
 
 		$(sibling_section).before(section);
 
+		// Required because loss of focus
+		questionnaire_set_active_section(section);
+
 		section.removeClass('animate-top');
 		sibling_section.removeClass('animate-top');
 
@@ -1786,6 +1808,9 @@ function questionnaire_move_section(section, direction) {
 		sibling_section = questionnaire_get_section(section_position + 1);
 
 		$(sibling_section).after(section);
+
+		// Required because loss of focus
+		questionnaire_set_active_section(section);
 
 		section.removeClass('animate-top');
 		sibling_section.removeClass('animate-top');
@@ -1849,8 +1874,27 @@ function questionnaire_add_section(section_div, before_dom_insertion_callback) {
 	$(cloned_section_div).css('top', '+=' + cloned_section_div.outerHeight() + 'px');
 
 	questionnaire_update_section_z_indexes();
+	questionnaire_set_active_section(cloned_section_div);
+	$(cloned_section_div).focus();
+
+	$('html, body').animate({scrollTop: cloned_section_div.offset().top + 'px'}, 800, 'swing');
 
 	return cloned_section_div;
+}
+
+function questionnaire_get_active_section() {
+	return $(document).data('active-section');
+}
+
+function questionnaire_set_active_section(section) {
+	if (section == undefined) {
+		$(questionnaire.selector).children('.panel.panel-active').removeClass('panel-active');
+		$(document).removeData('active-section');
+	} else {
+		$(questionnaire.selector).children('.panel.panel-active').removeClass('panel-active');
+		$(section).addClass('panel-active');
+		$(document).data('active-section', section);
+	}
 }
 
 function questionnaire_add_question(question_type) {

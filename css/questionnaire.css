@@ -9,6 +9,11 @@ body {
 	padding: 0;
 }
 
+#questionnaire > .panel-active {
+	box-shadow: -5px 0 2px 0 dodgerblue;
+	outline: 0;
+}
+
 #questionnaire img {
 	position: relative;
 }
