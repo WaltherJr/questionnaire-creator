@@ -27,7 +27,7 @@ var select_list_data = (function() {
 		'DEFAULT_REMOVE_ALTERNATIVE_BUTTON_HTML_ENTITY': '&times;',
 		'DEFAULT_BUTTON_TEXT': 'Välj',
 		'DEFAULT_ALTERNATIVE_TEXT': 'Alternativ',
-		'DEFAULT_ADD_ALTERNATIVE_BUTTON_TEXT': 'Lägg till alternativ',
+		'DEFAULT_ADD_ALTERNATIVE_BUTTON_TEXT': 'Lägg till svarsalternativ',
 		'DEFAULT_REMOVE_ALTERNATIVE_BUTTON_TOOLTIP_TEXT': 'Ta bort alternativ',
 		'DEFAULT_BUTTON_TEXT_ALTERNATIVES_SELECTED_STRING': ' alternativ valda'
 	};
@@ -182,10 +182,16 @@ function select_list_create_new(editable, multi_option, button_text, add_alterna
 		'spellcheck': 'false'
 	});
 
+	/*
 	var select_list_caret = $(document.createElement('img')).attr({
 		'class': select_list_data.classname('CARET'),
 		'src': 'svg/caret.svg',
 		'alt': 'caret'
+	});
+	*/
+
+	var select_list_caret = $(document.createElement('span')).attr({
+		'class': select_list_data.classname('CARET')
 	});
 
 	var select_list_alternatives_list = $(document.createElement('ul')).attr({
@@ -257,17 +263,25 @@ function select_list_get_selected_alternatives(select_list) {
 	return select_list_get_alternatives_list(select_list).children(select_list_data.selector('ALTERNATIVE_SELECTED'));
 }
 
-function select_list_add_alternative(select_list, alternative_data) {
+function select_list_clear_alternatives_list(select_list) {
+	var alternatives_list = select_list_get_alternatives(select_list);
+
+	alternatives_list.each(function(index, alternative) {
+		$(alternative).remove();
+	});
+}
+
+function select_list_add_alternative(select_list, alternative_data, removable) {
 	var alternatives_list = select_list_get_alternatives_list(select_list);
 	var new_list_item = $(document.createElement('li'));
 	var alternative_text = $(document.createElement('span'));
 	var selected_mark = $(document.createElement('span'));
-	var remove_alternative_button = $(document.createElement('button'));
 
 	$(alternative_text).attr({
 		'class': select_list_data.classname('ALTERNATIVE_TEXT'),
 		'contenteditable': select_list_is_list_editable(select_list) ? 'true' : 'false',
-		'spellcheck': 'false'
+		'spellcheck': 'false',
+		'tabindex': '0'
 	});
 
 	if (typeof(alternative_data) === 'string') {
@@ -280,27 +294,38 @@ function select_list_add_alternative(select_list, alternative_data) {
 
 	$(selected_mark).attr({'class': select_list_data.classname('SELECTED_MARK')});
 
-	$(remove_alternative_button).attr({
-		'class': select_list_data.classname('REMOVE_ALTERNATIVE_BUTTON'),
-		'type': 'button',
-		'tabindex': '-1'
-	});
-
 	$(new_list_item).addClass(select_list_data.classname('ALTERNATIVE')).css('display','none');
 	new_list_item.append(alternative_text);
 	new_list_item.append(selected_mark);
-	new_list_item.append(remove_alternative_button);
 
-	$(remove_alternative_button).attr({
-		'data-toggle': 'tooltip',
-		'data-placement': 'right',
-		'data-container': 'body',
-		'title': 'Ta bort alternativ'
-	}).tooltip();
+	if (removable == undefined || (typeof(removable === 'object' && removable !== null))) {
+		$(new_list_item).addClass('select-list-removable');
+
+		var remove_alternative_button = $(document.createElement('button'));
+
+		$(remove_alternative_button).attr({
+			'class': select_list_data.classname('REMOVE_ALTERNATIVE_BUTTON'),
+			'type': 'button',
+			'tabindex': '-1'
+		});
+
+		$(remove_alternative_button).attr({
+			'data-toggle': 'tooltip',
+			'data-placement': 'right',
+			'data-container': 'body',
+			'title': removable != undefined ? removable.tooltip_title : 'Ta bort alternativ'
+		}).tooltip();
+
+		new_list_item.append(remove_alternative_button);
+	}
 
 	alternatives_list.children('li:last-child').before(new_list_item);
-	questionnaire_select_text_node(alternative_text.get(0));
-	$(new_list_item).slideDown(400);
+	alternatives_list.animate({scrollTop: '2000px'}, 300, 'swing');
+
+	$(new_list_item).slideDown(300, function() {
+		questionnaire_select_text_node(alternative_text.get(0));
+		$(alternative_text).focus();
+	});
 
 	//select_list_reset_scroll_top(select_list);
 	//select_list_adjust_margin_bottom(select_list);

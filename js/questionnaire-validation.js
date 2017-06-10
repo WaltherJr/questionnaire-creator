@@ -8,7 +8,7 @@ function questionnaire_validate() {
 		if (questionnaire_validate_question(mandatory_question) === false) {
 			// Question answer is invalid
 			$(mandatory_question).addClass(questionnaire.question.invalid_question.classname);
-			$(mandatory_question).find('.question-type-validation-field').popover('show');
+			//$(mandatory_question).find('.question-type-validation-field').popover('show');
 
 			invalid_questions.push(mandatory_question);
 		} else {

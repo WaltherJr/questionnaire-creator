@@ -35,6 +35,8 @@ function questionnaire_preview_questionnaire(preview_mode_enabled) {
 
 		questionnaire_set_links_click_behaviour(true);
 
+		$(questionnaire.selector).find('img').removeAttr('tabindex');
+		$(questionnaire.selector).find('.select-list-alternative-text').removeAttr('tabindex');
 	} else {
 		$(questionnaire.title.selector).attr('contenteditable', 'true');
 		$(questionnaire.description.selector).attr('contenteditable', 'true');
@@ -54,6 +56,9 @@ function questionnaire_preview_questionnaire(preview_mode_enabled) {
 
 		questionnaire_remove_mandatory_questions_invalid_class();
 		questionnaire_set_links_click_behaviour(false);
+
+		$(questionnaire.selector).find('img').attr('tabindex', '0');
+		$(questionnaire.selector).find('.select-list-alternative-text').attr('tabindex', '0');
 	}
 
 	questionnaire_preview_sections(preview_mode_enabled);

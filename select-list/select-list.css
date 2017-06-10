@@ -37,9 +37,14 @@
 }
 
 .select-list-caret {
+	display: block;
 	position: absolute !important;
 	right: 15px;
 	top: calc(50% - 2px);
+	width: 10px;
+	height: 5px;
+	background-image: url('../svg/caret.svg');
+	background-repeat: no-repeat;
 }
 
 .select-list-alternatives-list {
@@ -91,7 +96,7 @@
 }
 
 .select-list-remove-alternative-button {
-	display: block;
+	display: none;
 	float: right;
 	background-color: white;
 	font-weight: bold;
@@ -137,8 +142,12 @@
 	box-shadow: 0 5px 15px 0 rgba(0,0,0,.3);
 }
 
-.select-list:not([class*='select-list-editable']) .select-list-remove-alternative-button {
-	display: none;
+.select-list.select-list-editable .select-list-remove-alternative-button {
+	display: block;
+}
+
+.select-list-alternative.select-list-removable > .select-list-remove-alternative-button {
+	display: block;
 }
 
 .select-list:not([class*='select-list-editable']) > .select-list-alternatives-list > li:last-child {

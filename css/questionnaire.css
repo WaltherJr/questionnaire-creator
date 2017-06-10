@@ -9,21 +9,48 @@ body {
 	padding: 0;
 }
 
+.bold {
+	font-weight: bold;
+}
+
+.question > .panel-heading > h3 {
+	width: calc(100% - 110px); /* Enables direct editing when selecting whole heading text at once */
+	float: left;
+}
+
+#questionnaire-already-exists-no-button, #questionnaire-already-exists-yes-button {
+	width: 49%;
+}
+
+#questionnaire-context-toolbar .glyphicon {
+	display: inline-block;
+	margin-right: 5px;
+}
+
+#questionnaire-context-toolbar legend {
+	font-size: 15px;
+}
 #questionnaire > .panel-active {
 	box-shadow: -5px 0 2px 0 dodgerblue;
-	outline: 0;
+	outline: 0; /* Remove dotted IE focus border */
+}
+
+.popover-invalid-value-close-button {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	float: right;
+	background-image: url('../svg/remove_alternative.svg');
+	margin-top: 3px;
 }
 
 #questionnaire img {
 	position: relative;
 }
 
-input.invalid {
-	border: 1px solid red !important;
-}
-
 .question-invalid .question-type-validation-field {
-	border: 2px solid rgba(255,0,0,.9);
+	box-shadow: 0 0 2px 1px red;
+	/* border: 2px solid rgba(255,0,0,.9); */
 	background-color: rgba(255,0,0,.07);
 }
 
@@ -82,8 +109,8 @@ img {
 
 .questionnaire-operations-toolbar {
 	position: fixed;
-	left: 10%;
 	z-index: 100;
+	margin-left: -50px;
 }
 
 #questionnaire > .heading-and-description > .panel-heading > .panel-title {
@@ -305,6 +332,11 @@ label {
 	width: 20px;
 	margin-left: 3px;
 	transition: opacity .5s;
+}
+
+#questionnaire-load-modal-dialog-questionnaires-list {
+	height: 2.4em;
+	padding: 0 10px;
 }
 
 .ranked-choice-type-definition-list > dt {
